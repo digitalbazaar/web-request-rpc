@@ -1,0 +1,21 @@
+{
+  "name": "web-request-rpc",
+  "version": "0.0.1-0",
+  "description": "Web Request RPC",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/digitalbazaar/web-request-rpc.git"
+  },
+  "author": {
+    "name": "Digital Bazaar, Inc.",
+    "email": "support@digitalbazaar.com",
+    "url": "http://digitalbazaar.com"
+  },
+  "bugs": {
+    "url": "https://github.com/digitalbazaar/web-request-rpc/issues"
+  },
+  "homepage": "https://github.com/digitalbazaar/web-request-rpc",
+  "dependencies": {
+  }
+}
