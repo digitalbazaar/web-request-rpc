@@ -5,7 +5,6 @@
  */
 'use strict';
 
+export {Client} from './Client';
+export {Server} from './Server';
 export {ServerContext} from './ServerContext';
-// TODO: enable
-//export {Client} from './Client';
-//export {Server} from './Server';

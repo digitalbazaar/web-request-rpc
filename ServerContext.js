@@ -1,25 +1,4 @@
 /*!
- * A ServerContext is a window that loads a page that runs an RPC server
- * and an RPC client that can make some control calls, such as to show
- * or hide its UI.
- *
- * A ServerContext is used to run and provide access to a Web application that
- * runs on a cross domain website. Use cases include:
- *
- * 1. Loading and communicating with a "Web Request Mediator" that polyfills
- *   some missing feature in a user's Web browser that could not be polyfilled
- *   without the use of a cross-domain third party website. These features
- *   are typically modeled as some kind of request made by one website that
- *   will be fulfilled by a different website. The mediator plays the role
- *   that the browser would natively provide if it implemented the feature,
- *   namely to facilitate communication and interaction between these two sites
- *   to process and fulfill the request.
- *
- * 2. Loading and communicating with a third party service provider Web
- *   application. A "Web Request Mediator" (see the first use case) would use
- *   a ServerContext to load these Web applications to enable them to fulfill
- *   requests made by a relying party.
- *
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 /* global dialogPolyfill */
