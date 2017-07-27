@@ -8,6 +8,9 @@ import Client from './Client';
 import Server from './Server';
 import {parseOrigin} from './utils';
 
+// 10 seconds
+const SERVER_CONTEXT_LOAD_TIMEOUT = 10000;
+
 export default class ServerContext {
   constructor() {
     this.client = new Client();
@@ -44,7 +47,7 @@ export default class ServerContext {
     }
     this.loaded = true;
 
-    // create control for server
+    // create control API for server to call via its own RPC client
     this.control = new Control(url, options);
 
     // define control class; this enables the server that is running in the
@@ -58,6 +61,9 @@ export default class ServerContext {
       handle: this.control.handle,
       ignoreUnknownApi: true
     });
+
+    // wait for control to be ready
+    await this.control.isReady();
 
     // connect to the server context and return the injector
     this.injector = await this.client.connect(url, {
@@ -73,10 +79,15 @@ export default class ServerContext {
   }
 }
 
+/**
+ * Provides an API for RPC servers that run in a ServerContext to indicate
+ * when they are ready and to show/hide their UI.
+ */
 class Control {
   constructor(url, options) {
     const self = this;
 
+    self.ready = false;
     self.visible = false;
     self.dialog = null;
     self.iframe = null;
@@ -159,6 +170,18 @@ class Control {
       }
     }
 
+    // private to allow ServerContext to track readiness
+    self._private._readyPromise = new Promise((resolve, reject) => {
+      self._private._resolveReady = resolve;
+      // reject if timeout reached
+      setTimeout(
+        () => reject(new Error('ServerContext timed out.')),
+        SERVER_CONTEXT_LOAD_TIMEOUT);
+    });
+    self._private.isReady = async () => {
+      return self._private._readyPromise;
+    };
+
     // private to disallow destruction via server
     self._private.destroy = () => {
       self.dialog.parentNode.removeChild(self.dialog);
@@ -166,6 +189,17 @@ class Control {
     };
   }
 
+  /**
+   * Called by the server's RPC client when it is ready to receive messages.
+   */
+  ready() {
+    self.ready = true;
+    self._private._resolveReady(true);
+  }
+
+  /**
+   * Called by the server's RPC client when it wants to show UI.
+   */
   show() {
     if(!self.visible) {
       self.visible = true;
@@ -177,7 +211,9 @@ class Control {
     }
   }
 
-
+  /**
+   * Called by the server's RPC client when it wants to hide UI.
+   */
   hide() {
     if(self.visible) {
       self.visible = false;
