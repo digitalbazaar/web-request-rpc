@@ -24,15 +24,19 @@ export default class Client {
    * define APIs to enable communication with the server.
    *
    * @param origin the origin to send messages to.
-   * @param handle a handle to the window to send messages to.
+   * @param options the options to use:
+   *          [handle] a handle to the window to send messages to
+   *            (defaults to `window.opener || window.top`).
    *
    * @return a Promise that resolves to an RPC injector once connected.
    */
-  async connect(origin, handle) {
-    // TODO: validate `origin` and `handle`
+  async connect(origin, options) {
+    options = options || {};
+
+    // TODO: validate `origin` and `options.handle`
     const self = this;
     self.origin = utils.parseOrigin(origin);
-    self.handle = handle;
+    self.handle = options.handle || (window.opener || window.top);
 
     self._listener = e => {
       // ignore messages from a non-matching handle or origin
