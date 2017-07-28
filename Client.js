@@ -38,26 +38,25 @@ export default class Client {
     self.origin = utils.parseOrigin(origin);
     self.handle = options.handle || (window.opener || window.top);
 
-    self._listener = e => {
-      // ignore messages from a non-matching handle or origin
-      if(!(e.source === self.handle && e.origin === self.origin)) {
-        return;
-      }
-      // ignore messages that don't follow the protocol or have no
-      // matching, pending request
-      const message = e.data;
-      if(!(utils.isValidMessage(message) && message.id in self._pending)) {
-        return;
-      }
+    const pending = self._pending;
+    self._listener = utils.createMessageListener({
+      listener: message => {
+        // ignore messages that have no matching, pending request
+        if(!(message.id in pending)) {
+          return;
+        }
 
-      // resolve or reject Promise associated with message
-      const {resolve, reject, cancelTimeout} = self._pending[message.id];
-      cancelTimeout();
-      if('result' in message) {
-        return resolve(message.result);
-      }
-      reject(utils.createError(message.error));
-    };
+        // resolve or reject Promise associated with message
+        const {resolve, reject, cancelTimeout} = pending[message.id];
+        cancelTimeout();
+        if('result' in message) {
+          return resolve(message.result);
+        }
+        reject(utils.createError(message.error));
+      },
+      origin: self.origin,
+      handle: self.handle
+    });
 
     return Promise.resolve(new Injector(self));
   }
@@ -93,6 +92,7 @@ export default class Client {
     if(this._listener) {
       window.removeEventListener('message', this._listener);
       this.handle = this.origin = this._listener = null;
+      this._pending = new Map();
     }
   }
 }

@@ -54,3 +54,15 @@ export function createError(error) {
   }
   return err;
 }
+
+export function createMessageListener({listener, origin, handle}) {
+  return e => {
+    // ignore messages from a non-matching handle or origin
+    // or that don't follow the protocol
+    if(!(e.source === handle && e.origin === origin &&
+      isValidMessage(e.data))) {
+      return;
+    }
+    listener(e.data, e);
+  };
+}
