@@ -66,7 +66,9 @@ export default class ServerContext {
     await this.control.isReady();
 
     // connect to the server context and return the injector
-    this.injector = await this.client.connect(origin, this.control.handle);
+    this.injector = await this.client.connect(origin, {
+      handle: this.control.handle
+    });
     return this.injector;
   }
 
