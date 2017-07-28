@@ -29,3 +29,28 @@ export function parseOrigin(url) {
 export function uuidv4(a,b) {
   for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b;
 }
+
+export function isValidMessage(message) {
+  return (
+    message && typeof message === 'object' &&
+    message.jsonrpc === '2.0' &&
+    message.id && typeof message.id === 'string' &&
+    ('result' in message ^ 'error' in message) &&
+    (!('error' in message) || isValidError(message.error)));
+}
+
+export function isValidError(error) {
+  return (
+    error && typeof error === 'object' &&
+    typeof error.code === 'number' &&
+    typeof error.message === 'string');
+}
+
+export function createError(error) {
+  const err = new Error(error.message);
+  err.code = err.code;
+  if(error.details) {
+    err.details = error.details;
+  }
+  return err;
+}

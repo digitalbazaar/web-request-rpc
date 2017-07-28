@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import {parseOrigin, uuidv4} from './utils';
+import * as utils from './utils';
 
 // 30 second default timeout
 const RPC_CLIENT_CALL_TIMEOUT = 30000;
@@ -31,7 +31,7 @@ export default class Client {
   async connect(url, handle) {
     // TODO: validate `url` and `handle`
     const self = this;
-    self.origin = parseOrigin(url);
+    self.origin = utils.parseOrigin(url);
     self.handle = handle;
 
     self._listener = e => {
@@ -42,7 +42,7 @@ export default class Client {
       // ignore messages that don't follow the protocol or have no
       // matching, pending request
       const message = e.data;
-      if(!(_isValidMessage(message) && message.id in self._pending)) {
+      if(!(utils.isValidMessage(message) && message.id in self._pending)) {
         return;
       }
 
@@ -52,7 +52,7 @@ export default class Client {
       if('result' in message) {
         return resolve(message.result);
       }
-      reject(_createError(message.error));
+      reject(utils.createError(message.error));
     };
 
     return Promise.resolve(new Injector(self));
@@ -65,7 +65,7 @@ export default class Client {
 
     const message = {
       jsonrpc: '2.0',
-      id: uuidv4(),
+      id: utils.uuidv4(),
       method: qualifyiedMethodName,
       params: parameters
     };
@@ -160,29 +160,4 @@ class Injector {
     }
     return self._apis[name];
   }
-}
-
-function _isValidMessage(message) {
-  return (
-    message && typeof message === 'object' &&
-    message.jsonrpc === '2.0' &&
-    message.id && typeof message.id === 'string' &&
-    ('result' in message ^ 'error' in message) &&
-    (!('error' in message) || _isValidError(message.error)));
-}
-
-function _isValidError(error) {
-  return (
-    error && typeof error === 'object' &&
-    typeof error.code === 'number' &&
-    typeof error.message === 'string');
-}
-
-function _createError(error) {
-  const err = new Error(error.message);
-  err.code = err.code;
-  if(error.details) {
-    err.details = error.details;
-  }
-  return err;
 }
