@@ -71,8 +71,7 @@ export default class Server {
       handle: self.handle,
       expectRequest: true,
       listener: message => {
-        // fully-qualified method name is: `<api-name>.<method-name>`
-        const [name, method] = message.method.split('.');
+        const {name, method} = utils.destructureMethodName(message.method);
         const api = self._apis[name];
 
         // API not found but ignore flag is on

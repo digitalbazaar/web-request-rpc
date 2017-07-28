@@ -114,3 +114,13 @@ export function createMessageListener(
     listener(e.data, e);
   };
 }
+
+export function destructureMethodName(fqMethodName) {
+  // fully-qualified method name is: `<api-name>.<method-name>`
+  // where `<api-name>` is all but the last dot-delimited segment and
+  // `<method-name>` is the last dot-delimited segment
+  let [name, ...rest] = fqMethodName.split('.');
+  const method = rest.pop();
+  name = [name, ...rest].join('.');
+  return {name, method};
+}
