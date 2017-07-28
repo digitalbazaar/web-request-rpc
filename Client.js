@@ -23,15 +23,15 @@ export default class Client {
    * The Promise will resolve to an RPC injector that can be used to get or
    * define APIs to enable communication with the server.
    *
-   * @param url the URL to the page to connect to.
-   * @param handle a handle to the window to connect to.
+   * @param origin the origin to send messages to.
+   * @param handle a handle to the window to send messages to.
    *
    * @return a Promise that resolves to an RPC injector once connected.
    */
-  async connect(url, handle) {
-    // TODO: validate `url` and `handle`
+  async connect(origin, handle) {
+    // TODO: validate `origin` and `handle`
     const self = this;
-    self.origin = utils.parseOrigin(url);
+    self.origin = utils.parseOrigin(origin);
     self.handle = handle;
 
     self._listener = e => {
