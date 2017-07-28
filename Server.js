@@ -5,7 +5,7 @@
 
 import * as utils from './utils';
 
-export default class Server {
+export class Server {
   constructor() {
     this.origin = null;
     this.handle = null;
@@ -98,9 +98,9 @@ export default class Server {
             id: message.id
           };
           try {
-            message.result = await fn.apply(api, message.params);
+            response.result = await fn.apply(api, message.params);
           } catch(e) {
-            message.error = utils.serializeError(e);
+            response.error = utils.serializeError(e);
           }
           // if server did not `close` while we waited for a response
           if(self.handle) {
@@ -109,6 +109,7 @@ export default class Server {
         })();
       }
     });
+    window.addEventListener('message', self._listener);
   }
 
   close() {

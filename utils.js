@@ -61,9 +61,7 @@ export function isValidMessage(message) {
   return (
     message && typeof message === 'object' &&
     message.jsonrpc === '2.0' &&
-    message.id && typeof message.id === 'string' &&
-    ('result' in message ^ 'error' in message) &&
-    (!('error' in message) || isValidError(message.error)));
+    message.id && typeof message.id === 'string');
 }
 
 export function isValidRequest(message) {

@@ -8,7 +8,7 @@ import * as utils from './utils';
 // 30 second default timeout
 const RPC_CLIENT_CALL_TIMEOUT = 30000;
 
-export default class Client {
+export class Client {
   constructor() {
     this.origin = null;
     this.handle = null;
@@ -62,6 +62,7 @@ export default class Client {
         reject(utils.deserializeError(message.error));
       }
     });
+    window.addEventListener('message', self._listener);
 
     return Promise.resolve(new Injector(self));
   }

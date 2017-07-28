@@ -4,14 +4,14 @@
 /* global dialogPolyfill */
 'use strict';
 
-import Client from './Client';
-import Server from './Server';
+import {Client} from './Client';
+import {Server} from './Server';
 import {parseOrigin} from './utils';
 
 // 10 seconds
 const SERVER_CONTEXT_LOAD_TIMEOUT = 10000;
 
-export default class ServerContext {
+export class ServerContext {
   constructor() {
     this.client = new Client();
     this.server = new Server();
@@ -63,7 +63,7 @@ export default class ServerContext {
     });
 
     // wait for control to be ready
-    await this.control.isReady();
+    await this.control._private.isReady();
 
     // connect to the server context and return the injector
     this.injector = await this.client.connect(origin, {
@@ -87,11 +87,11 @@ class Control {
   constructor(url, options) {
     const self = this;
 
-    self.ready = false;
     self.visible = false;
     self.dialog = null;
     self.iframe = null;
     self.handle = null;
+    self._ready = false;
     self._private = {};
 
     if(options.iframe) {
@@ -115,7 +115,7 @@ class Control {
       left: 0,
       width: 'auto',
       height: 'auto',
-      display: 'block',
+      display: 'none',
       margin: 0,
       padding: 0,
       border: 'none',
@@ -172,11 +172,14 @@ class Control {
 
     // private to allow ServerContext to track readiness
     self._private._readyPromise = new Promise((resolve, reject) => {
-      self._private._resolveReady = resolve;
       // reject if timeout reached
-      setTimeout(
+      const timeoutId = setTimeout(
         () => reject(new Error('ServerContext timed out.')),
         SERVER_CONTEXT_LOAD_TIMEOUT);
+      self._private._resolveReady = value => {
+        clearTimeout(timeoutId);
+        resolve(value);
+      };
     });
     self._private.isReady = async () => {
       return self._private._readyPromise;
@@ -193,20 +196,21 @@ class Control {
    * Called by the server's RPC client when it is ready to receive messages.
    */
   ready() {
-    self.ready = true;
-    self._private._resolveReady(true);
+    this._ready = true;
+    this._private._resolveReady(true);
   }
 
   /**
    * Called by the server's RPC client when it wants to show UI.
    */
   show() {
-    if(!self.visible) {
-      self.visible = true;
-      if(self.dialog) {
-        self.dialog.showModal();
+    if(!this.visible) {
+      this.visible = true;
+      if(this.dialog) {
+        this.dialog.style.display = 'block';
+        this.dialog.showModal();
       } else {
-        self.iframe.style.visibility = true;
+        this.iframe.style.visibility = 'visible';
       }
     }
   }
@@ -215,18 +219,19 @@ class Control {
    * Called by the server's RPC client when it wants to hide UI.
    */
   hide() {
-    if(self.visible) {
-      self.visible = false;
-      if(self.dialog) {
-        if(self.dialog.close) {
+    if(this.visible) {
+      this.visible = false;
+      if(this.dialog) {
+        this.dialog.style.display = 'none';
+        if(this.dialog.close) {
           try {
-            self.dialog.close();
+            this.dialog.close();
           } catch(e) {
             console.error(e);
           }
         }
       } else {
-        self.iframe.style.visibility = false;
+        this.iframe.style.visibility = 'hidden';
       }
     }
   }
