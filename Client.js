@@ -64,6 +64,10 @@ export default class Client {
   async send(qualifyiedMethodName, parameters, {
     timeout = RPC_CLIENT_CALL_TIMEOUT
   }) {
+    if(!this._listener) {
+      throw new Error('RPC client not connected.');
+    }
+
     const self = this;
 
     const message = {
@@ -84,7 +88,7 @@ export default class Client {
         reject(new Error('RPC call timed out.'));
       }, timeout);
       const cancelTimeout = () => clearTimeout(timeoutId);
-      self._pending[message.id] = {resolve, reject, cancelTimeout};
+      pending[message.id] = {resolve, reject, cancelTimeout};
     });
   }
 
