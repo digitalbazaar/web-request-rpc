@@ -31,6 +31,10 @@ export default class Client {
    * @return a Promise that resolves to an RPC injector once connected.
    */
   async connect(origin, options) {
+    if(this._listener) {
+      throw new Error('Already connected.');
+    }
+
     options = options || {};
 
     // TODO: validate `origin` and `options.handle`
@@ -40,6 +44,9 @@ export default class Client {
 
     const pending = self._pending;
     self._listener = utils.createMessageListener({
+      origin: self.origin,
+      handle: self.handle,
+      expectRequest: false,
       listener: message => {
         // ignore messages that have no matching, pending request
         if(!(message.id in pending)) {
@@ -52,10 +59,8 @@ export default class Client {
         if('result' in message) {
           return resolve(message.result);
         }
-        reject(utils.createError(message.error));
-      },
-      origin: self.origin,
-      handle: self.handle
+        reject(utils.deserializeError(message.error));
+      }
     });
 
     return Promise.resolve(new Injector(self));

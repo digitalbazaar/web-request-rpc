@@ -5,6 +5,33 @@
  */
 'use strict';
 
+export const RPC_ERRORS = {
+  ParseError: {
+    message: 'Parse error',
+    code: -32700
+  },
+  InvalidRequest: {
+    message: 'Invalid Request',
+    code: -32600
+  },
+  MethodNotFound: {
+    message: 'Method not found',
+    code: -32601
+  },
+  InvalidParams: {
+    message: 'Invalid params',
+    code: -32602
+  },
+  InternalError: {
+    message: 'Internal Error',
+    code: -32603
+  },
+  ServerError: {
+    message: 'Server error',
+    code: -32000
+  }
+};
+
 export function parseOrigin(url) {
   // `URL` API not supported on IE, use DOM to parse URL
   var parser = document.createElement('a');
@@ -39,6 +66,17 @@ export function isValidMessage(message) {
     (!('error' in message) || isValidError(message.error)));
 }
 
+export function isValidRequest(message) {
+  return isValidMessage(message) && Array.isArray(message.params);
+}
+
+export function isValidResponse(message) {
+  return (
+    isValidMessage(message) &&
+    ('result' in message ^ 'error' in message) &&
+    (!('error' in message) || isValidError(message.error)));
+}
+
 export function isValidError(error) {
   return (
     error && typeof error === 'object' &&
@@ -46,7 +84,15 @@ export function isValidError(error) {
     typeof error.message === 'string');
 }
 
-export function createError(error) {
+export function serializeError(error) {
+  const err = {message: error.message};
+  if(!('code' in error)) {
+    err.code = RPC_ERRORS.ServerError.code;
+  }
+  return err;
+}
+
+export function deserializeError(error) {
   const err = new Error(error.message);
   err.code = err.code;
   if(error.details) {
@@ -55,12 +101,14 @@ export function createError(error) {
   return err;
 }
 
-export function createMessageListener({listener, origin, handle}) {
+export function createMessageListener(
+  {listener, origin, handle, expectRequest}) {
   return e => {
     // ignore messages from a non-matching handle or origin
     // or that don't follow the protocol
     if(!(e.source === handle && e.origin === origin &&
-      isValidMessage(e.data))) {
+      ((expectRequest && isValidRequest(e.data)) ||
+        (!expectRequest && isValidResponse(e.data))))) {
       return;
     }
     listener(e.data, e);
