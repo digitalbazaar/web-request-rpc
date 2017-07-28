@@ -3,9 +3,20 @@
  */
 'use strict';
 
-import {parseOrigin} from './utils';
+import {parseOrigin, uuidv4} from './utils';
+
+// 30 second default timeout
+const RPC_CLIENT_CALL_TIMEOUT = 30000;
 
 export default class Client {
+  constructor() {
+    this.origin = null;
+    this.handle = null;
+    this._listener = null;
+    // all pending requests
+    this._pending = new Map();
+  }
+
   /**
    * Connects to a Web Request RPC server.
    *
@@ -13,17 +24,165 @@ export default class Client {
    * define APIs to enable communication with the server.
    *
    * @param url the URL to the page to connect to.
-   * @param options the options to use:
-   *          [handle] a handle to the window to connect to.
+   * @param handle a handle to the window to connect to.
    *
    * @return a Promise that resolves to an RPC injector once connected.
    */
-  async connect(url, options) {
-    options = options || {};
-    // TODO:
+  async connect(url, handle) {
+    // TODO: validate `url` and `handle`
+    const self = this;
+    self.origin = parseOrigin(url);
+    self.handle = handle;
+
+    self._listener = e => {
+      // ignore messages from a non-matching handle or origin
+      if(!(e.source === self.handle && e.origin === self.origin)) {
+        return;
+      }
+      // ignore messages that don't follow the protocol or have no
+      // matching, pending request
+      const message = e.data;
+      if(!(_isValidMessage(message) && message.id in self._pending)) {
+        return;
+      }
+
+      // resolve or reject Promise associated with message
+      const {resolve, reject, cancelTimeout} = self._pending[message.id];
+      cancelTimeout();
+      if('result' in message) {
+        return resolve(message.result);
+      }
+      reject(_createError(message.error));
+    };
+
+    return Promise.resolve(new Injector(self));
+  }
+
+  async send(qualifyiedMethodName, parameters, {
+    timeout = RPC_CLIENT_CALL_TIMEOUT
+  }) {
+    const self = this;
+
+    const message = {
+      jsonrpc: '2.0',
+      id: uuidv4(),
+      method: qualifyiedMethodName,
+      params: parameters
+    };
+
+    self.handle.postMessage(message, self.origin);
+
+    // return Promise that will resolve once a response message has been
+    // received or once a timeout occurs
+    return new Promise((resolve, reject) => {
+      const pending = self._pending;
+      const timeoutId = setTimeout(() => {
+        delete pending[message.id];
+        reject(new Error('RPC call timed out.'));
+      }, timeout);
+      const cancelTimeout = () => clearTimeout(timeoutId);
+      self._pending[message.id] = {resolve, reject, cancelTimeout};
+    });
   }
 
   close() {
-    // TODO:
+    if(this._listener) {
+      window.removeEventListener('message', this._listener);
+      this.handle = this.origin = this._listener = null;
+    }
   }
+}
+
+class Injector {
+  constructor(client) {
+    this.client = client;
+    this._apis = new Map();
+  }
+
+  /**
+   * Defines a named API that will use an RPC client to implement its
+   * functions. Each of these functions will be asynchronous and return a
+   * Promise with the result from the RPC server.
+   *
+   * This function will return an interface with functions defined according
+   * to those provided in the given `definition`. The `name` parameter can be
+   * used to obtain this cached interface via `.get(name)`.
+   *
+   * @param name the name of the API.
+   * @param definition the definition for the API, including:
+   *          functions: an array of function names (as strings) or objects
+   *            containing: {name: <functionName>, options: <rpcClientOptions>}.
+   *
+   * @return an interface with the functions provided via `definition` that
+   *           will make RPC calls to an RPC server to provide their
+   *           implementation.
+   */
+  define(name, definition) {
+    if(!(name && typeof name === 'string')) {
+      throw new TypeError('`name` must be a non-empty string.');
+    }
+    // TODO: support Web IDL as a definition format?
+    if(!(definition && typeof definition === 'object' &&
+      Array.isArray(definition.functions))) {
+      throw new TypeError(
+        '`definition.function` must be an array of function names or ' +
+        'function definition objects to be defined.');
+    }
+
+    const self = this;
+    const api = {};
+
+    definition.functions.forEach(fn => {
+      if(typeof fn === 'string') {
+        fn = {name: fn, options: {}};
+      }
+      api[fn.name] = async function() {
+        return self.client.send(
+          name + '.' + fn.name, [...arguments], fn.options);
+      };
+    });
+
+    self._apis[name] = api;
+    return api;
+  }
+
+  /**
+   * Get a previously defined, named API.
+   *
+   * @param name the name of the API.
+   *
+   * @return the interface.
+   */
+  get(name) {
+    const api = self._apis[name];
+    if(!api) {
+      throw new Error(`API "${name}" has not been defined.`);
+    }
+    return self._apis[name];
+  }
+}
+
+function _isValidMessage(message) {
+  return (
+    message && typeof message === 'object' &&
+    message.jsonrpc === '2.0' &&
+    message.id && typeof message.id === 'string' &&
+    ('result' in message ^ 'error' in message) &&
+    (!('error' in message) || _isValidError(message.error)));
+}
+
+function _isValidError(error) {
+  return (
+    error && typeof error === 'object' &&
+    typeof error.code === 'number' &&
+    typeof error.message === 'string');
+}
+
+function _createError(error) {
+  const err = new Error(error.message);
+  err.code = err.code;
+  if(error.details) {
+    err.details = error.details;
+  }
+  return err;
 }

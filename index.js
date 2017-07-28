@@ -8,3 +8,6 @@
 export {Client} from './Client';
 export {Server} from './Server';
 export {ServerContext} from './ServerContext';
+
+import * as utils from './utils';
+export {utils};
