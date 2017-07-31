@@ -64,7 +64,7 @@ export class Client {
     });
     window.addEventListener('message', self._listener);
 
-    return Promise.resolve(new Injector(self));
+    return new Injector(self);
   }
 
   async send(qualifyiedMethodName, parameters, {
