@@ -74,6 +74,11 @@ export class Server {
         const {name, method} = utils.destructureMethodName(message.method);
         const api = self._apis[name];
 
+        // do not allow calling "private" methods (starts with `_`)
+        if(method && method.startsWith('_')) {
+          return sendMethodNotFound(self.handle, self.origin, message);
+        }
+
         // API not found but ignore flag is on
         if(!api && ignoreUnknownApi) {
           // API not registered, ignore the message rather than raise error
@@ -82,12 +87,7 @@ export class Server {
 
         // no ignore flag and unknown API or unknown specific method
         if(!api || typeof api[method] !== 'function') {
-          const response = {
-            jsonrpc: '2.0',
-            id: message.id,
-            error: Object.assign({}, utils.RPC_ERRORS.MethodNotFound)
-          };
-          return self.handle.postMessage(response, self.origin);
+          return sendMethodNotFound(self.handle, self.origin, message);
         }
 
         // API and specific function found
@@ -118,4 +118,13 @@ export class Server {
       this.handle = this.origin = this._listener = null;
     }
   }
+}
+
+function sendMethodNotFound(handle, origin, message) {
+  const response = {
+    jsonrpc: '2.0',
+    id: message.id,
+    error: Object.assign({}, utils.RPC_ERRORS.MethodNotFound)
+  };
+  return handle.postMessage(response, origin);
 }
