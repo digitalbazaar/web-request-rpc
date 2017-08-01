@@ -61,7 +61,7 @@ export class Server {
 
     // TODO: validate `origin` and `options.handle`
     const self = this;
-    self.origin = utils.parseOrigin(origin);
+    self.origin = utils.parseUrl(origin).origin;
     self.handle = options.handle || (window.opener || window.top);
 
     const ignoreUnknownApi = (options.ignoreUnknownApi === 'true') || false;

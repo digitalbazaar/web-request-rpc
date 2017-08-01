@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
+/* global URL */
 'use strict';
 
 export const RPC_ERRORS = {
@@ -32,11 +33,28 @@ export const RPC_ERRORS = {
   }
 };
 
-export function parseOrigin(url) {
-  // `URL` API not supported on IE, use DOM to parse URL
-  var parser = document.createElement('a');
+export function parseUrl(url, base) {
+  if(typeof URL !== 'undefined') {
+    return new URL(url, base);
+  }
+
+  if(typeof url !== 'string') {
+    throw new TypeError('"url" must be a string.');
+  }
+
+  // FIXME: rudimentary relative URL resolution
+  if(!url.includes(':')) {
+    if(base.startsWith('http') && !url.startsWith('/')) {
+      url = base + '/' + url;
+    } else {
+      url = base + url;
+    }
+  }
+
+  // `URL` API not supported, use DOM to parse URL
+  const parser = document.createElement('a');
   parser.href = url;
-  var origin = (parser.protocol || window.location.protocol) + '//';
+  const origin = (parser.protocol || window.location.protocol) + '//';
   if(parser.host) {
     // use hostname when using default ports
     // (IE adds always adds port to `parser.host`)
@@ -49,7 +67,16 @@ export function parseOrigin(url) {
   } else {
     origin += window.location.host;
   }
-  return origin;
+
+  return {
+    // TODO: is this safe for general use on every browser that doesn't
+    //   support WHATWG URL?
+    host: parser.host || window.location.host,
+    hostname: parser.hostname,
+    origin: origin,
+    protocol: parser.protocol,
+    pathname: parser.pathname
+  };
 }
 
 // https://gist.github.com/LeverOne/1308368

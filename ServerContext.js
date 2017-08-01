@@ -6,7 +6,7 @@
 
 import {Client} from './Client';
 import {Server} from './Server';
-import {parseOrigin} from './utils';
+import {parseUrl} from './utils';
 
 // 10 seconds
 const SERVER_CONTEXT_LOAD_TIMEOUT = 10000;
@@ -56,7 +56,7 @@ export class ServerContext {
 
     // listen for calls from the window, ignoring calls to unknown APIs
     // to allow those to be handled by other servers
-    const origin = parseOrigin(url);
+    const origin = parseUrl(url).origin;
     this.server.listen(origin, {
       handle: this.control.handle,
       ignoreUnknownApi: true
