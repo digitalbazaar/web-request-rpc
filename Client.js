@@ -161,15 +161,20 @@ class Injector {
   }
 
   /**
-   * Get a previously defined, named API.
+   * Get a named API, defining it if necessary when a definition is provided.
    *
    * @param name the name of the API.
+   * @param [definition] the definition for the API; if the API is already
+   *          defined, this definition is ignored.
    *
    * @return the interface.
    */
-  get(name) {
+  get(name, definition) {
     const api = self._apis[name];
     if(!api) {
+      if(definition) {
+        return this.define(name, definition);
+      }
       throw new Error(`API "${name}" has not been defined.`);
     }
     return self._apis[name];
