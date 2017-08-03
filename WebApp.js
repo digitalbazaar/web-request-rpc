@@ -12,10 +12,11 @@ export class WebApp {
     this.origin = origin;
     this.client = null;
     this.injector = null;
-    this._control = null;
-    this._connected = false;
     this.client = new rpc.Client();
     this.server = new rpc.Server();
+
+    this._control = null;
+    this._connected = false;
   }
 
   /**
@@ -32,8 +33,19 @@ export class WebApp {
       functions: ['ready', 'show', 'hide']
     });
     this.server.listen(this.origin);
-    this._control.ready();
     return this.injector;
+  }
+
+  /**
+   * Must be called after `connect` when this WebApp is ready to start
+   * receiving calls from the remote end.
+   */
+  async ready() {
+    if(!this._connected) {
+      throw new Error('WebApp not connected. Did you call ".connect()"?');
+    }
+    await this._control.ready();
+    return this;
   }
 
   /**
@@ -52,7 +64,8 @@ export class WebApp {
    */
   async show() {
     if(!this._connected) {
-      throw new Error('Cannot "show" yet; not connected.');
+      throw new Error(
+        'Cannot "show" yet; not connected. Did you call ".connect()"?');
     }
     return this._control.show();
   }
@@ -62,7 +75,8 @@ export class WebApp {
    */
   async hide() {
     if(!this._connected) {
-      throw new Error('Cannot "hide" yet; not connected.');
+      throw new Error(
+        'Cannot "hide" yet; not connected. Did you call ".connect()?"');
     }
     return this._control.hide();
   }
