@@ -5,15 +5,17 @@
  */
 'use strict';
 
-import * as rpc from 'web-request-rpc';
+import {Client} from './Client';
+import {Server} from './Server';
+import {parseUrl} from './utils';
 
 export class WebApp {
   constructor(origin) {
-    this.origin = origin;
+    this.origin = parseUrl(origin).origin;
     this.client = null;
     this.injector = null;
-    this.client = new rpc.Client();
-    this.server = new rpc.Server();
+    this.client = new Client();
+    this.server = new Server();
 
     this._control = null;
     this._connected = false;
