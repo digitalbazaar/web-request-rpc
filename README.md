@@ -28,14 +28,14 @@ TODO
 
 TODO:
 
-## ServerContext
+## WebAppContext
 
-A ServerContext is a window that loads a page that runs an RPC server
-and an RPC client that can make some control calls, such as to show
-or hide its UI.
+A WebAppContext loads or attaches to a window with a remote Web Application
+that typically runs on a cross domain website. It is used to manage and
+provide access this RPC WebApp. It also enables the WebApp to make some
+control calls, such as to show or hide its UI.
 
-A ServerContext is used to run and provide access to a Web application that
-runs on a cross domain website. Use cases include:
+Use cases include:
 
 1. Loading and communicating with a "Web Request Mediator" that polyfills
   some missing feature in a user's Web browser that could not be polyfilled
@@ -47,5 +47,12 @@ runs on a cross domain website. Use cases include:
   to process and fulfill the request.
 2. Loading and communicating with a third party service provider Web
   application. A "Web Request Mediator" (see the first use case) would use
-  a ServerContext to load these Web applications to enable them to fulfill
+  a WebAppContext to load these Web applications to enable them to fulfill
   requests made by a relying party.
+
+## WebApp
+
+A Web Application that uses RPC to communicate with a WebAppContext that
+is loaded by another, typically cross domain, website. This Web Application
+could be a "Web Request Mediator" that will itself load WebApps, or an
+application designed to fulfill Web requests.

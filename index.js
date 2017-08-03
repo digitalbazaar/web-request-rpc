@@ -7,7 +7,8 @@
 
 export {Client} from './Client';
 export {Server} from './Server';
-export {ServerContext} from './ServerContext';
+export {WebAppContext} from './WebAppContext';
+export {WebApp} from './WebApp';
 
 import * as utils from './utils';
 export {utils};

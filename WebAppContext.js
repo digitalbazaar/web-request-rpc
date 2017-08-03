@@ -9,9 +9,9 @@ import {Server} from './Server';
 import {parseUrl} from './utils';
 
 // 10 seconds
-const SERVER_CONTEXT_LOAD_TIMEOUT = 10000;
+const WEB_APP_CONTEXT_LOAD_TIMEOUT = 10000;
 
-export class ServerContext {
+export class WebAppContext {
   constructor() {
     this.client = new Client();
     this.server = new Server();
@@ -27,8 +27,8 @@ export class ServerContext {
    * that it is ready to be communicated with or once a timeout occurs.
    *
    * The Promise will resolve to an RPC injector that can be used to get or
-   * define APIs to enable communication with the server running in the
-   * server context.
+   * define APIs to enable communication with the WebApp running in the
+   * WebAppContext.
    *
    * @param url the URL to the page to connect to.
    * @param options the options to use:
@@ -41,17 +41,17 @@ export class ServerContext {
   async createWindow(url, options) {
     options = options || {};
 
-    // disallow loading the same server context more than once
+    // disallow loading the same WebAppContext more than once
     if(this.loaded) {
-      throw new Error('ServerContext already loaded.');
+      throw new Error('AppContext already loaded.');
     }
     this.loaded = true;
 
-    // create control API for server to call via its own RPC client
+    // create control API for WebApp to call via its own RPC client
     this.control = new Control(url, options);
 
-    // define control class; this enables the server that is running in the
-    // ServerContext to control its UI or close itself down
+    // define control class; this enables the WebApp that is running in the
+    // WebAppContext to control its UI or close itself down
     this.server.define('core.control', this.control);
 
     // listen for calls from the window, ignoring calls to unknown APIs
@@ -65,7 +65,7 @@ export class ServerContext {
     // wait for control to be ready
     await this.control._private.isReady();
 
-    // connect to the server context and return the injector
+    // connect to the WebAppContext and return the injector
     this.injector = await this.client.connect(origin, {
       handle: this.control.handle
     });
@@ -80,7 +80,7 @@ export class ServerContext {
 }
 
 /**
- * Provides an API for RPC servers that run in a ServerContext to indicate
+ * Provides an API for RPC WebApps that run in a WebAppContext to indicate
  * when they are ready and to show/hide their UI.
  */
 class Control {
@@ -170,12 +170,12 @@ class Control {
       }
     }
 
-    // private to allow ServerContext to track readiness
+    // private to allow WebAppContext to track readiness
     self._private._readyPromise = new Promise((resolve, reject) => {
       // reject if timeout reached
       const timeoutId = setTimeout(
-        () => reject(new Error('ServerContext timed out.')),
-        SERVER_CONTEXT_LOAD_TIMEOUT);
+        () => reject(new Error('Loading WebApp timed out.')),
+        WEB_APP_CONTEXT_LOAD_TIMEOUT);
       self._private._resolveReady = value => {
         clearTimeout(timeoutId);
         resolve(value);
@@ -185,7 +185,7 @@ class Control {
       return self._private._readyPromise;
     };
 
-    // private to disallow destruction via server
+    // private to disallow destruction via WebApp
     self._private.destroy = () => {
       self.dialog.parentNode.removeChild(self.dialog);
       self.dialog = null;
@@ -193,7 +193,7 @@ class Control {
   }
 
   /**
-   * Called by the server's RPC client when it is ready to receive messages.
+   * Called by the WebApp's RPC client when it is ready to receive messages.
    */
   ready() {
     this._ready = true;
@@ -201,7 +201,7 @@ class Control {
   }
 
   /**
-   * Called by the server's RPC client when it wants to show UI.
+   * Called by the WebApp's RPC client when it wants to show UI.
    */
   show() {
     if(!this.visible) {
@@ -216,7 +216,7 @@ class Control {
   }
 
   /**
-   * Called by the server's RPC client when it wants to hide UI.
+   * Called by the WebApp's RPC client when it wants to hide UI.
    */
   hide() {
     if(this.visible) {
