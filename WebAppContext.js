@@ -1,10 +1,10 @@
 /*!
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
-/* global dialogPolyfill */
 'use strict';
 
 import {Client} from './Client';
+import {ClientWindow} from './ClientWindow';
 import {Server} from './Server';
 import {parseUrl} from './utils';
 
@@ -32,15 +32,15 @@ export class WebAppContext {
    *
    * @param url the URL to the page to connect to.
    * @param options the options to use:
+   *          [timeout] the timeout for waiting for the client to be ready.
    *          [iframe] a handle to an iframe to connect to.
    *          [className] a className to assign to the window for CSS purposes.
    *
    * @return a Promise that resolves to an RPC injector once the window is
    *           ready.
    */
-  async createWindow(url, options) {
-    options = options || {};
-
+  async createWindow(
+    url, {timeout = WEB_APP_CONTEXT_LOAD_TIMEOUT, iframe, className} = {}) {
     // disallow loading the same WebAppContext more than once
     if(this.loaded) {
       throw new Error('AppContext already loaded.');
@@ -48,7 +48,11 @@ export class WebAppContext {
     this.loaded = true;
 
     // create control API for WebApp to call via its own RPC client
-    this.control = new Control(url, options);
+    this.control = new ClientWindow(url, {
+      timeout,
+      iframe,
+      className
+    });
 
     // define control class; this enables the WebApp that is running in the
     // WebAppContext to control its UI or close itself down
@@ -76,169 +80,5 @@ export class WebAppContext {
     this.control._private.destroy();
     this.server.close();
     this.client.close();
-  }
-}
-
-/**
- * Provides an API for RPC WebApps that run in a WebAppContext to indicate
- * when they are ready and to show/hide their UI.
- */
-class Control {
-  constructor(url, options) {
-    const self = this;
-
-    self.visible = false;
-    self.dialog = null;
-    self.iframe = null;
-    self.handle = null;
-    self._ready = false;
-    self._private = {};
-
-    if(options.iframe) {
-      // TODO: validate `iframe` option as much as possible
-      if(!(typeof options.iframe === 'object' &&
-        options.iframe.contentWindow)) {
-        throw new TypeError('`options.iframe` must be an iframe element.');
-      }
-      self.iframe = options.iframe;
-      self.handle = self.iframe.contentWindow;
-      return;
-    }
-
-    // create a top-level dialog overlay
-    self.dialog = document.createElement('dialog');
-    applyStyle(self.dialog, {
-      position: 'fixed',
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-      width: 'auto',
-      height: 'auto',
-      display: 'none',
-      margin: 0,
-      padding: 0,
-      border: 'none',
-      background: 'transparent',
-      color: 'black',
-      'box-sizing': 'border-box',
-      overflow: 'hidden',
-      'z-index': 1000000
-    });
-    if('className' in options) {
-      self.dialog.className = options.className;
-    }
-
-    // create iframe
-    self.iframe = document.createElement('iframe');
-    self.iframe.src = url;
-    self.iframe.scrolling = 'no';
-    applyStyle(self.iframe, {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      border: 'none',
-      background: 'transparent',
-      width: '100vw',
-      height: '100vh',
-      overflow: 'hidden'
-    });
-
-    // assemble dialog
-    self.dialog.appendChild(self.iframe);
-
-    // handle cancel (user pressed escape)
-    self.dialog.addEventListener('cancel', e => {
-      e.preventDefault();
-      self.hide();
-    });
-
-    // attach to DOM
-    document.body.appendChild(self.dialog);
-    self.handle = self.iframe.contentWindow;
-
-    // register dialog with dialog-polyfill if necessary
-    if(!self.dialog.showModal) {
-      if(typeof require === 'function' &&
-        typeof dialogPolyfill === 'undefined') {
-        try {
-          dialogPolyfill = require('dialog-polyfill');
-        } catch(e) {}
-      }
-      if(typeof dialogPolyfill !== 'undefined') {
-        dialogPolyfill.registerDialog(self.dialog);
-      }
-    }
-
-    // private to allow WebAppContext to track readiness
-    self._private._readyPromise = new Promise((resolve, reject) => {
-      // reject if timeout reached
-      const timeoutId = setTimeout(
-        () => reject(new Error('Loading WebApp timed out.')),
-        WEB_APP_CONTEXT_LOAD_TIMEOUT);
-      self._private._resolveReady = value => {
-        clearTimeout(timeoutId);
-        resolve(value);
-      };
-    });
-    self._private.isReady = async () => {
-      return self._private._readyPromise;
-    };
-
-    // private to disallow destruction via WebApp
-    self._private.destroy = () => {
-      self.dialog.parentNode.removeChild(self.dialog);
-      self.dialog = null;
-    };
-  }
-
-  /**
-   * Called by the WebApp's RPC client when it is ready to receive messages.
-   */
-  ready() {
-    this._ready = true;
-    this._private._resolveReady(true);
-  }
-
-  /**
-   * Called by the WebApp's RPC client when it wants to show UI.
-   */
-  show() {
-    if(!this.visible) {
-      this.visible = true;
-      if(this.dialog) {
-        this.dialog.style.display = 'block';
-        this.dialog.showModal();
-      } else {
-        this.iframe.style.visibility = 'visible';
-      }
-    }
-  }
-
-  /**
-   * Called by the WebApp's RPC client when it wants to hide UI.
-   */
-  hide() {
-    if(this.visible) {
-      this.visible = false;
-      if(this.dialog) {
-        this.dialog.style.display = 'none';
-        if(this.dialog.close) {
-          try {
-            this.dialog.close();
-          } catch(e) {
-            console.error(e);
-          }
-        }
-      } else {
-        this.iframe.style.visibility = 'hidden';
-      }
-    }
-  }
-}
-
-function applyStyle(element, style) {
-  for(let name in style) {
-    element.style[name] = style[name];
   }
 }
