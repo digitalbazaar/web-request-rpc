@@ -170,13 +170,13 @@ class Injector {
    * @return the interface.
    */
   get(name, definition) {
-    const api = self._apis[name];
+    const api = this._apis[name];
     if(!api) {
       if(definition) {
         return this.define(name, definition);
       }
       throw new Error(`API "${name}" has not been defined.`);
     }
-    return self._apis[name];
+    return this._apis[name];
   }
 }
