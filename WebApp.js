@@ -10,8 +10,10 @@ import {Server} from './Server';
 import {parseUrl} from './utils';
 
 export class WebApp {
-  constructor(origin) {
-    this.origin = parseUrl(origin).origin;
+  constructor(relyingOrigin) {
+    // this is the origin that created the WebAppContext to run it in
+    // TODO: better name? `contextOrigin`?
+    this.relyingOrigin = parseUrl(relyingOrigin).origin;
     this.client = null;
     this.injector = null;
     this.client = new Client();
@@ -22,19 +24,19 @@ export class WebApp {
   }
 
   /**
-   * Connects this WebApp to the origin that instantiated it. Once
+   * Connects this WebApp to the relying origin that instantiated it. Once
    * connected, the WebApp can start servicing calls from that origin.
    *
    * @return a Promise that resolves to an injector for creating custom client
    *           APIs once the connection is ready.
    */
   async connect() {
-    this.injector = await this.client.connect(this.origin);
+    this.injector = await this.client.connect(this.relyingOrigin);
     this._connected = true;
     this._control = this.injector.define('core.control', {
       functions: ['ready', 'show', 'hide']
     });
-    this.server.listen(this.origin);
+    this.server.listen(this.relyingOrigin);
     return this.injector;
   }
 
