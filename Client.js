@@ -68,7 +68,18 @@ export class Client {
     return new Injector(self);
   }
 
-  async send(qualifyiedMethodName, parameters, {
+  /**
+   * Performs a RPC by sending a message to the Web Request RPC server and
+   * awaiting a response.
+   *
+   * @param qualifiedMethodName the fully-qualified name of the method to call.
+   * @param parameters the parameters for the method.
+   * @param options the options to use:
+   *          [timeout] a timeout, in milliseconds, for awaiting a response.
+   *
+   * @return a Promise that resolves to the result (or error) of the call.
+   */
+  async send(qualifiedMethodName, parameters, {
     timeout = RPC_CLIENT_CALL_TIMEOUT
   }) {
     if(!this._listener) {
@@ -80,7 +91,7 @@ export class Client {
     const message = {
       jsonrpc: '2.0',
       id: utils.uuidv4(),
-      method: qualifyiedMethodName,
+      method: qualifiedMethodName,
       params: parameters
     };
 
@@ -99,6 +110,10 @@ export class Client {
     });
   }
 
+  /**
+   * Disconnects from the remote Web Request RPC server and closes down this
+   * client.
+   */
   close() {
     if(this._listener) {
       window.removeEventListener('message', this._listener);
