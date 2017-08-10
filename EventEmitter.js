@@ -16,7 +16,7 @@ export class EventEmitter {
     return this._waitUntil(event);
   }
 
-  _addEventListener(eventType, fn) {
+  addEventListener(eventType, fn) {
     if(!this._listeners[eventType]) {
       this._listeners[eventType] = [fn];
     } else {
@@ -24,7 +24,7 @@ export class EventEmitter {
     }
   }
 
-  _removeEventListener(eventType, fn) {
+  removeEventListener(eventType, fn) {
     const listeners = this._listeners[eventType];
     if(!listeners) {
       return;
