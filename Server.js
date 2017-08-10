@@ -49,7 +49,7 @@ export class Server {
    * @param origin the origin to listen for.
    * @param options the options to use:
    *          [handle] a handle to the window to listen for messages from
-   *            (defaults to `window.opener || window.top`).
+   *            (defaults to `window.parent || window.opener || window.top`).
    *          [ignoreUnknownApi] `true` to ignore unknown API messages.
    */
   async listen(origin, options) {
@@ -62,7 +62,8 @@ export class Server {
     // TODO: validate `origin` and `options.handle`
     const self = this;
     self.origin = utils.parseUrl(origin).origin;
-    self.handle = options.handle || (window.opener || window.top);
+    self.handle = options.handle || window.parent ||
+      window.opener || window.top;
 
     const ignoreUnknownApi = (options.ignoreUnknownApi === 'true') || false;
 
