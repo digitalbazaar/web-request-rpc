@@ -1,6 +1,6 @@
 # web-request-rpc ChangeLog
 
-## 0.0.1 - 2017-xx-xx
+## 0.0.1 - 2017-08-10
 
 ### Added
 - Add core files.
