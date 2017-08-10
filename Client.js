@@ -75,7 +75,8 @@ export class Client {
    * @param qualifiedMethodName the fully-qualified name of the method to call.
    * @param parameters the parameters for the method.
    * @param options the options to use:
-   *          [timeout] a timeout, in milliseconds, for awaiting a response.
+   *          [timeout] a timeout, in milliseconds, for awaiting a response;
+   *            a non-positive timeout (<= 0) will cause an indefinite wait.
    *
    * @return a Promise that resolves to the result (or error) of the call.
    */
@@ -101,11 +102,16 @@ export class Client {
     // received or once a timeout occurs
     return new Promise((resolve, reject) => {
       const pending = self._pending;
-      const timeoutId = setTimeout(() => {
-        delete pending[message.id];
-        reject(new Error('RPC call timed out.'));
-      }, timeout);
-      const cancelTimeout = () => clearTimeout(timeoutId);
+      let cancelTimeout;
+      if(timeout > 0) {
+        const timeoutId = setTimeout(() => {
+          delete pending[message.id];
+          reject(new Error('RPC call timed out.'));
+        }, timeout);
+        cancelTimeout = () => clearTimeout(timeoutId);
+      } else {
+        cancelTimeout = () => {};
+      }
       pending[message.id] = {resolve, reject, cancelTimeout};
     });
   }
