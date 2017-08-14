@@ -6,11 +6,11 @@
 'use strict';
 
 export {Client} from './Client';
-export {ClientWindow} from './ClientWindow';
 export {EventEmitter} from './EventEmitter';
 export {Server} from './Server';
 export {WebApp} from './WebApp';
 export {WebAppContext} from './WebAppContext';
+export {WebAppWindow} from './WebAppWindow';
 
 import * as utils from './utils';
 export {utils};

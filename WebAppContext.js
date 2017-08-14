@@ -4,8 +4,8 @@
 'use strict';
 
 import {Client} from './Client';
-import {ClientWindow} from './ClientWindow';
 import {Server} from './Server';
+import {WebAppWindow} from './WebAppWindow';
 import {parseUrl} from './utils';
 
 // 10 seconds
@@ -48,7 +48,7 @@ export class WebAppContext {
     this.loaded = true;
 
     // create control API for WebApp to call via its own RPC client
-    this.control = new ClientWindow(url, {
+    this.control = new WebAppWindow(url, {
       timeout,
       iframe,
       className

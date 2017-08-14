@@ -8,11 +8,11 @@
 const LOAD_WINDOW_TIMEOUT = 10000;
 
 /**
- * Provides a window and API for client Web applications. This API is typically
+ * Provides a window and API for remote Web applications. This API is typically
  * used by RPC WebApps that run in a WebAppContext to indicate when they are
  * ready and to show/hide their UI.
  */
-export class ClientWindow {
+export class WebAppWindow {
   constructor(
     url, {timeout = LOAD_WINDOW_TIMEOUT, iframe, className = null} = {}) {
     const self = this;
@@ -103,7 +103,7 @@ export class ClientWindow {
     self._private._readyPromise = new Promise((resolve, reject) => {
       // reject if timeout reached
       const timeoutId = setTimeout(
-        () => reject(new Error('Loading client window timed out.')),
+        () => reject(new Error('Loading Web application window timed out.')),
         timeout);
       self._private._resolveReady = value => {
         clearTimeout(timeoutId);
