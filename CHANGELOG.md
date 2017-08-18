@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 0.0.6 - 2017-08-18
+
+### Fixed
+- Add `dialog-polyfill` dependency.
+
 ## 0.0.5 - 2017-08-18
 
 ### Fixed
