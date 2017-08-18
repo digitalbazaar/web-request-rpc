@@ -16,5 +16,7 @@
     "url": "https://github.com/digitalbazaar/web-request-rpc/issues"
   },
   "homepage": "https://github.com/digitalbazaar/web-request-rpc",
-  "dependencies": {}
+  "dependencies": {
+    "dialog-polyfill": "^0.4.9"
+  }
 }
