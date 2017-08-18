@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 0.0.5 - 2017-08-18
+
+### Fixed
+- Fixuse of `const`.
+
 ## 0.0.4 - 2017-08-18
 
 ### Changed
