@@ -54,7 +54,7 @@ export function parseUrl(url, base) {
   // `URL` API not supported, use DOM to parse URL
   const parser = document.createElement('a');
   parser.href = url;
-  const origin = (parser.protocol || window.location.protocol) + '//';
+  let origin = (parser.protocol || window.location.protocol) + '//';
   if(parser.host) {
     // use hostname when using default ports
     // (IE adds always adds port to `parser.host`)
