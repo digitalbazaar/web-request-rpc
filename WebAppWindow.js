@@ -54,9 +54,17 @@ export class WebAppWindow {
       overflow: 'hidden',
       'z-index': 1000000
     });
+    self.dialog.className = 'web-app-window';
     if(typeof className === 'string') {
-      self.dialog.className = className;
+      self.dialog.className = self.dialog.className + ' ' + className;
     }
+
+    // ensure backdrop is transparent by default
+    const style = document.createElement('style');
+    style.appendChild(
+      document.createTextNode(`dialog.web-app-window::backdrop {
+        background-color: transparent;
+      }`));
 
     // create iframe
     self.iframe = document.createElement('iframe');
@@ -74,6 +82,7 @@ export class WebAppWindow {
     });
 
     // assemble dialog
+    self.dialog.appendChild(style);
     self.dialog.appendChild(self.iframe);
 
     // handle cancel (user pressed escape)
