@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 0.0.4 - 2017-08-18
+
+### Changed
+- Make WebAppWindow backdrop transparent by default.
+
 ## 0.0.3 - 2017-08-14
 
 ### Changed
