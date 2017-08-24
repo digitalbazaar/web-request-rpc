@@ -1,9 +1,14 @@
 # web-request-rpc ChangeLog
 
+## 0.1.2 - 2017-08-24
+
+### Fixed
+- Ensure dialogPolyfill is loaded.
+
 ## 0.1.1 - 2017-08-24
 
-###
-- Added hook to enable customization of WebAppWindow.
+### Added
+- Add hook to enable customization of WebAppWindow.
 
 ## 0.1.0 - 2017-08-18
 
