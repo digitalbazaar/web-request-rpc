@@ -1,8 +1,9 @@
 /*!
  * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
-/* global dialogPolyfill */
 'use strict';
+
+import dialogPolyfill from 'dialog-polyfill';
 
 // default time out is 10 seconds
 const LOAD_WINDOW_TIMEOUT = 10000;
@@ -120,15 +121,7 @@ export class WebAppWindow {
 
     // register dialog with dialog-polyfill if necessary
     if(!self.dialog.showModal) {
-      if(typeof require === 'function' &&
-        typeof dialogPolyfill === 'undefined') {
-        try {
-          dialogPolyfill = require('dialog-polyfill');
-        } catch(e) {}
-      }
-      if(typeof dialogPolyfill !== 'undefined') {
-        dialogPolyfill.registerDialog(self.dialog);
-      }
+      dialogPolyfill.registerDialog(self.dialog);
     }
 
     if(customize) {
