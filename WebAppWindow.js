@@ -14,7 +14,12 @@ const LOAD_WINDOW_TIMEOUT = 10000;
  */
 export class WebAppWindow {
   constructor(
-    url, {timeout = LOAD_WINDOW_TIMEOUT, iframe, className = null} = {}) {
+    url, {
+      timeout = LOAD_WINDOW_TIMEOUT,
+      iframe,
+      className = null,
+      customize = null
+    } = {}) {
     const self = this;
 
     self.visible = false;
@@ -32,6 +37,12 @@ export class WebAppWindow {
       self.iframe = iframe;
       self.handle = self.iframe.contentWindow;
       return;
+    }
+
+    if(customize) {
+      if(!typeof customize === 'function') {
+        throw new TypeError('`options.customize` must be a function.');
+      }
     }
 
     // create a top-level dialog overlay
@@ -66,24 +77,36 @@ export class WebAppWindow {
         background-color: transparent;
       }`));
 
+    // create flex container for iframe
+    self.container = document.createElement('div');
+    applyStyle(self.container, {
+      position: 'relative',
+      width: '100vw',
+      height: '100vh',
+      margin: 0,
+      padding: 0,
+      display: 'flex',
+      'flex-direction': 'column'
+    });
+
     // create iframe
     self.iframe = document.createElement('iframe');
     self.iframe.src = url;
     self.iframe.scrolling = 'no';
     applyStyle(self.iframe, {
-      position: 'absolute',
-      top: 0,
-      left: 0,
+      position: 'relative',
       border: 'none',
       background: 'transparent',
-      width: '100vw',
-      height: '100vh',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      margin: 0,
+      padding: 0,
+      'flex-grow': 1
     });
 
     // assemble dialog
     self.dialog.appendChild(style);
-    self.dialog.appendChild(self.iframe);
+    self.container.appendChild(self.iframe);
+    self.dialog.appendChild(self.container);
 
     // handle cancel (user pressed escape)
     self.dialog.addEventListener('cancel', e => {
@@ -105,6 +128,19 @@ export class WebAppWindow {
       }
       if(typeof dialogPolyfill !== 'undefined') {
         dialogPolyfill.registerDialog(self.dialog);
+      }
+    }
+
+    if(customize) {
+      try {
+        customize({
+          dialog: self.dialog,
+          container: self.container,
+          iframe: self.iframe,
+          webAppWindow: self
+        });
+      } catch(e) {
+        console.error(e);
       }
     }
 

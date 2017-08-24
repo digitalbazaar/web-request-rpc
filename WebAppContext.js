@@ -35,12 +35,19 @@ export class WebAppContext {
    *          [timeout] the timeout for waiting for the client to be ready.
    *          [iframe] a handle to an iframe to connect to.
    *          [className] a className to assign to the window for CSS purposes.
+   *          [customize(options)] a function to customize the dialog that
+   *            loads the window after its construction.
    *
    * @return a Promise that resolves to an RPC injector once the window is
    *           ready.
    */
   async createWindow(
-    url, {timeout = WEB_APP_CONTEXT_LOAD_TIMEOUT, iframe, className} = {}) {
+    url, {
+      timeout = WEB_APP_CONTEXT_LOAD_TIMEOUT,
+      iframe,
+      className,
+      customize
+    } = {}) {
     // disallow loading the same WebAppContext more than once
     if(this.loaded) {
       throw new Error('AppContext already loaded.');
@@ -51,7 +58,8 @@ export class WebAppContext {
     this.control = new WebAppWindow(url, {
       timeout,
       iframe,
-      className
+      className,
+      customize
     });
 
     // define control class; this enables the WebApp that is running in the
