@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 0.1.3 - 2017-08-29
+
+### Fixed
+- Do not pass undefined `base`, it breaks Safari.
+
 ## 0.1.2 - 2017-08-24
 
 ### Fixed
