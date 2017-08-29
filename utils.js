@@ -35,7 +35,12 @@ export const RPC_ERRORS = {
 
 export function parseUrl(url, base) {
   if(typeof URL !== 'undefined') {
-    return new URL(url, base);
+    // cannot simply pass `base` when it's `undefined`, this causes a
+    // `TypeError` on Safari
+    if(base) {
+      return new URL(url, base);
+    }
+    return new URL(url);
   }
 
   if(typeof url !== 'string') {
