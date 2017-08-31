@@ -101,7 +101,9 @@ export class WebAppWindow {
       overflow: 'hidden',
       margin: 0,
       padding: 0,
-      'flex-grow': 1
+      'flex-grow': 1,
+      width: '100%',
+      height: '100%'
     });
 
     // assemble dialog
