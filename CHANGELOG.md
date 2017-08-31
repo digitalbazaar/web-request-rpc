@@ -1,5 +1,11 @@
 # web-request-rpc ChangeLog
 
+## 0.1.4 - 2017-08-31
+
+### Fixed
+- Fix display bug on Edge by defaulting iframe
+  for WebAppWindow to 100% width+height.
+
 ## 0.1.3 - 2017-08-29
 
 ### Fixed
