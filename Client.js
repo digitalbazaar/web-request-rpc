@@ -3,7 +3,7 @@
  */
 'use strict';
 
-import * as utils from './utils';
+import * as utils from './utils.js';
 
 // 30 second default timeout
 const RPC_CLIENT_CALL_TIMEOUT = 30000;

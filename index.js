@@ -5,12 +5,12 @@
  */
 'use strict';
 
-export {Client} from './Client';
-export {EventEmitter} from './EventEmitter';
-export {Server} from './Server';
-export {WebApp} from './WebApp';
-export {WebAppContext} from './WebAppContext';
-export {WebAppWindow} from './WebAppWindow';
+export {Client} from './Client.js';
+export {EventEmitter} from './EventEmitter.js';
+export {Server} from './Server.js';
+export {WebApp} from './WebApp.js';
+export {WebAppContext} from './WebAppContext.js';
+export {WebAppWindow} from './WebAppWindow.js';
 
-import * as utils from './utils';
+import * as utils from './utils.js';
 export {utils};

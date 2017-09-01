@@ -3,10 +3,10 @@
  */
 'use strict';
 
-import {Client} from './Client';
-import {Server} from './Server';
-import {WebAppWindow} from './WebAppWindow';
-import {parseUrl} from './utils';
+import {Client} from './Client.js';
+import {Server} from './Server.js';
+import {WebAppWindow} from './WebAppWindow.js';
+import {parseUrl} from './utils.js';
 
 // 10 seconds
 const WEB_APP_CONTEXT_LOAD_TIMEOUT = 10000;

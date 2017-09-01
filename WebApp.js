@@ -5,9 +5,9 @@
  */
 'use strict';
 
-import {Client} from './Client';
-import {Server} from './Server';
-import {parseUrl} from './utils';
+import {Client} from './Client.js';
+import {Server} from './Server.js';
+import {parseUrl} from './utils.js';
 
 export class WebApp {
   constructor(relyingOrigin) {
