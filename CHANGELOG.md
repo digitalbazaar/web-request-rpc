@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 0.1.5 - 2017-09-01
+
+### Fixed
+- Include `.js` extension on imports.
+
 ## 0.1.4 - 2017-08-31
 
 ### Fixed
