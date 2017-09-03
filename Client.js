@@ -11,7 +11,7 @@ const RPC_CLIENT_CALL_TIMEOUT = 30000;
 export class Client {
   constructor() {
     this.origin = null;
-    this.handle = null;
+    this._handle = null;
     this._listener = null;
     // all pending requests
     this._pending = new Map();
@@ -25,8 +25,9 @@ export class Client {
    *
    * @param origin the origin to send messages to.
    * @param options the options to use:
-   *          [handle] a handle to the window to send messages to
-   *            (defaults to `window.parent || window.opener || window.top`).
+   *          [handle] a handle to the window (or a Promise that resolves to
+   *            a handle) to send messages to
+   *            (defaults to `window.parent || window.opener`).
    *
    * @return a Promise that resolves to an RPC injector once connected.
    */
@@ -40,13 +41,12 @@ export class Client {
     // TODO: validate `origin` and `options.handle`
     const self = this;
     self.origin = utils.parseUrl(origin).origin;
-    self.handle = options.handle || window.parent ||
-      window.opener || window.top;
+    self._handle = options.handle || window.parent || window.opener;
 
     const pending = self._pending;
     self._listener = utils.createMessageListener({
       origin: self.origin,
-      handle: self.handle,
+      handle: self._handle,
       expectRequest: false,
       listener: message => {
         // ignore messages that have no matching, pending request
@@ -96,7 +96,14 @@ export class Client {
       params: parameters
     };
 
-    self.handle.postMessage(message, self.origin);
+    // HACK: we can't just `Promise.resolve(handle)` because Chrome has
+    // a bug that throws an exception if the handle is cross domain
+    if(utils.isHandlePromise(self._handle)) {
+      const handle = await self._handle;
+      handle.postMessage(message, self.origin);
+    } else {
+      self._handle.postMessage(message, self.origin);
+    }
 
     // return Promise that will resolve once a response message has been
     // received or once a timeout occurs
@@ -123,7 +130,7 @@ export class Client {
   close() {
     if(this._listener) {
       window.removeEventListener('message', this._listener);
-      this.handle = this.origin = this._listener = null;
+      this._handle = this.origin = this._listener = null;
       this._pending = new Map();
     }
   }

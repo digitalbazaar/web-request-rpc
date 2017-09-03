@@ -33,7 +33,10 @@ export class WebAppContext {
    * @param url the URL to the page to connect to.
    * @param options the options to use:
    *          [timeout] the timeout for waiting for the client to be ready.
-   *          [iframe] a handle to an iframe to connect to.
+   *          [handle] a window handle to connect to; may be a Promise that
+   *            that resolves to a handle.
+   *          [iframe] an iframe element to connect to.
+   *          [windowControl] a window control interface to connect to.
    *          [className] a className to assign to the window for CSS purposes.
    *          [customize(options)] a function to customize the dialog that
    *            loads the window after its construction.
@@ -45,6 +48,8 @@ export class WebAppContext {
     url, {
       timeout = WEB_APP_CONTEXT_LOAD_TIMEOUT,
       iframe,
+      handle,
+      windowControl,
       className,
       customize
     } = {}) {
@@ -58,6 +63,8 @@ export class WebAppContext {
     this.control = new WebAppWindow(url, {
       timeout,
       iframe,
+      handle,
+      windowControl,
       className,
       customize
     });

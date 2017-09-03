@@ -17,7 +17,9 @@ export class WebAppWindow {
   constructor(
     url, {
       timeout = LOAD_WINDOW_TIMEOUT,
+      handle,
       iframe,
+      windowControl,
       className = null,
       customize = null
     } = {}) {
@@ -27,16 +29,62 @@ export class WebAppWindow {
     self.dialog = null;
     self.iframe = null;
     self.handle = null;
+    self.windowControl = null;
     self._ready = false;
     self._private = {};
+
+    // private to allow caller to track readiness
+    self._private._readyPromise = new Promise((resolve, reject) => {
+      // reject if timeout reached
+      const timeoutId = setTimeout(
+        () => reject(new Error('Loading Web application window timed out.')),
+        timeout);
+      self._private._resolveReady = value => {
+        clearTimeout(timeoutId);
+        resolve(value);
+      };
+    });
+    self._private.isReady = async () => {
+      return self._private._readyPromise;
+    };
+
+    // private to disallow destruction via client
+    self._private.destroy = () => {
+      if(self.dialog) {
+        self.dialog.parentNode.removeChild(self.dialog);
+        self.dialog = null;
+      }
+    };
 
     if(iframe) {
       // TODO: validate `iframe` option as much as possible
       if(!(typeof iframe === 'object' && iframe.contentWindow)) {
         throw new TypeError('`options.iframe` must be an iframe element.');
       }
+      self.windowControl = {
+        handle: iframe.contentWindow,
+        show() {
+          iframe.style.visibility = 'visible';
+        },
+        hide() {
+          iframe.style.visibility = 'hidden';
+        }
+      };
       self.iframe = iframe;
       self.handle = self.iframe.contentWindow;
+      return;
+    }
+
+    if(windowControl) {
+      // TODO: validate `windowControl`
+      self.windowControl = windowControl;
+      self.handle = self.windowControl.handle;
+      return;
+    }
+
+    if(handle) {
+      // TODO: validate `handle`
+      self.handle = handle;
       return;
     }
 
@@ -138,27 +186,6 @@ export class WebAppWindow {
         console.error(e);
       }
     }
-
-    // private to allow WebAppContext to track readiness
-    self._private._readyPromise = new Promise((resolve, reject) => {
-      // reject if timeout reached
-      const timeoutId = setTimeout(
-        () => reject(new Error('Loading Web application window timed out.')),
-        timeout);
-      self._private._resolveReady = value => {
-        clearTimeout(timeoutId);
-        resolve(value);
-      };
-    });
-    self._private.isReady = async () => {
-      return self._private._readyPromise;
-    };
-
-    // private to disallow destruction via client
-    self._private.destroy = () => {
-      self.dialog.parentNode.removeChild(self.dialog);
-      self.dialog = null;
-    };
   }
 
   /**
@@ -178,8 +205,8 @@ export class WebAppWindow {
       if(this.dialog) {
         this.dialog.style.display = 'block';
         this.dialog.showModal();
-      } else {
-        this.iframe.style.visibility = 'visible';
+      } else if(this.windowControl.show) {
+        this.windowControl.show();
       }
     }
   }
@@ -199,8 +226,8 @@ export class WebAppWindow {
             console.error(e);
           }
         }
-      } else {
-        this.iframe.style.visibility = 'hidden';
+      } else if(this.windowControl.hide) {
+        this.windowControl.hide();
       }
     }
   }

@@ -50,6 +50,12 @@ Use cases include:
   a WebAppContext to load these Web applications to enable them to fulfill
   requests made by a relying party.
 
+TODO: Add note about usefulness of passing a Promise for a window handle
+when creating/connecting with client/server/WebAppContext/etc. This approach
+enables a `message` listener to be attached prior to the creation of the
+window where access to the window handle is not available until the window
+has loaded. This is important to prevent missing messages.
+
 ## WebApp
 
 A Web Application that uses RPC to communicate with a WebAppContext that

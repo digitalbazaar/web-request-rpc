@@ -34,13 +34,12 @@ export const RPC_ERRORS = {
 };
 
 export function parseUrl(url, base) {
+  if(base === undefined) {
+    base = window.location.href;
+  }
+
   if(typeof URL !== 'undefined') {
-    // cannot simply pass `base` when it's `undefined`, this causes a
-    // `TypeError` on Safari
-    if(base) {
-      return new URL(url, base);
-    }
-    return new URL(url);
+    return new URL(url, base);
   }
 
   if(typeof url !== 'string') {
@@ -144,6 +143,13 @@ export function deserializeError(error) {
 
 export function createMessageListener(
   {listener, origin, handle, expectRequest}) {
+  // HACK: we can't just `Promise.resolve(handle)` because Chrome has
+  // a bug that throws an exception if the handle is cross domain
+  if(isHandlePromise(handle)) {
+    const promise = handle;
+    handle = false;
+    promise.then(h => handle = h);
+  }
   return e => {
     // ignore messages from a non-matching handle or origin
     // or that don't follow the protocol
@@ -164,4 +170,13 @@ export function destructureMethodName(fqMethodName) {
   const method = rest.pop();
   name = [name, ...rest].join('.');
   return {name, method};
+}
+
+export function isHandlePromise(handle) {
+  try {
+    // HACK: we can't just `Promise.resolve(handle)` because Chrome has
+    // a bug that throws an exception if the handle is cross domain
+    return typeof handle.then === 'function';
+  } catch(e) {}
+  return false;
 }

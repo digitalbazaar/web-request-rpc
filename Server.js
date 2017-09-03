@@ -8,7 +8,7 @@ import * as utils from './utils.js';
 export class Server {
   constructor() {
     this.origin = null;
-    this.handle = null;
+    this._handle = null;
     this._apis = new Map();
   }
 
@@ -48,8 +48,9 @@ export class Server {
    *
    * @param origin the origin to listen for.
    * @param options the options to use:
-   *          [handle] a handle to the window to listen for messages from
-   *            (defaults to `window.parent || window.opener || window.top`).
+   *          [handle] a handle to the window (or a Promise that resolves to
+   *            a handle) to listen for messages from
+   *            (defaults to `window.parent || window.opener`).
    *          [ignoreUnknownApi] `true` to ignore unknown API messages.
    */
   async listen(origin, options) {
@@ -62,14 +63,13 @@ export class Server {
     // TODO: validate `origin` and `options.handle`
     const self = this;
     self.origin = utils.parseUrl(origin).origin;
-    self.handle = options.handle || window.parent ||
-      window.opener || window.top;
+    self._handle = options.handle || window.parent || window.opener;
 
     const ignoreUnknownApi = (options.ignoreUnknownApi === 'true') || false;
 
     self._listener = utils.createMessageListener({
       origin: self.origin,
-      handle: self.handle,
+      handle: self._handle,
       expectRequest: true,
       listener: message => {
         const {name, method} = utils.destructureMethodName(message.method);
@@ -77,7 +77,7 @@ export class Server {
 
         // do not allow calling "private" methods (starts with `_`)
         if(method && method.startsWith('_')) {
-          return sendMethodNotFound(self.handle, self.origin, message);
+          return sendMethodNotFound(self._handle, self.origin, message);
         }
 
         // API not found but ignore flag is on
@@ -88,7 +88,7 @@ export class Server {
 
         // no ignore flag and unknown API or unknown specific method
         if(!api || typeof api[method] !== 'function') {
-          return sendMethodNotFound(self.handle, self.origin, message);
+          return sendMethodNotFound(self._handle, self.origin, message);
         }
 
         // API and specific function found
@@ -104,8 +104,14 @@ export class Server {
             response.error = utils.serializeError(e);
           }
           // if server did not `close` while we waited for a response
-          if(self.handle) {
-            self.handle.postMessage(response, self.origin);
+          if(self._handle) {
+            // HACK: we can't just `Promise.resolve(handle)` because Chrome has
+            // a bug that throws an exception if the handle is cross domain
+            if(utils.isHandlePromise(self._handle)) {
+              self._handle.then(h => h.postMessage(response, self.origin));
+            } else {
+              self._handle.postMessage(response, self.origin);
+            }
           }
         })();
       }
@@ -116,7 +122,7 @@ export class Server {
   close() {
     if(this._listener) {
       window.removeEventListener('message', this._listener);
-      this.handle = this.origin = this._listener = null;
+      this._handle = this.origin = this._listener = null;
     }
   }
 }
@@ -127,5 +133,11 @@ function sendMethodNotFound(handle, origin, message) {
     id: message.id,
     error: Object.assign({}, utils.RPC_ERRORS.MethodNotFound)
   };
-  return handle.postMessage(response, origin);
+  // HACK: we can't just `Promise.resolve(handle)` because Chrome has
+  // a bug that throws an exception if the handle is cross domain
+  if(utils.isHandlePromise(handle)) {
+    return handle.then(h => h.postMessage(response, origin));
+  } else {
+    return handle.postMessage(response, origin);
+  }
 }
