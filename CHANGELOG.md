@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 0.1.6 - 2017-09-03
+
+### Added
+- Add ability to pass a Promise that resolves to a window handle.
+
 ## 0.1.5 - 2017-09-01
 
 ### Fixed
