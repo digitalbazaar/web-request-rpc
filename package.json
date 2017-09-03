@@ -1,6 +1,6 @@
 {
   "name": "web-request-rpc",
-  "version": "0.1.6",
+  "version": "0.1.7-0",
   "description": "Web Request RPC",
   "main": "index.js",
   "repository": {
