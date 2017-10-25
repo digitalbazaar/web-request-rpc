@@ -113,7 +113,7 @@ export function isValidRequest(message) {
 export function isValidResponse(message) {
   return (
     isValidMessage(message) &&
-    ('result' in message ^ 'error' in message) &&
+    !!('result' in message ^ 'error' in message) &&
     (!('error' in message) || isValidError(message.error)));
 }
 
