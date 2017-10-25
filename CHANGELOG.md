@@ -1,5 +1,8 @@
 # web-request-rpc ChangeLog
 
+### Changed
+- Improve error marshalling.
+
 ## 0.1.6 - 2017-09-03
 
 ### Added

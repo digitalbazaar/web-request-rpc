@@ -125,16 +125,38 @@ export function isValidError(error) {
 }
 
 export function serializeError(error) {
-  const err = {message: error.message};
-  if(!('code' in error)) {
+  const err = {
+    message: error.message
+  };
+  if(error.constructor.name !== 'Error') {
+    err.constructor = error.constructor.name;
+  }
+  if('name' in error) {
+    err.name = error.name;
+  }
+  if('code' in error) {
+    err.code = error.code;
+  } else {
     err.code = RPC_ERRORS.ServerError.code;
+  }
+  if('details' in error) {
+    err.details = error.details;
   }
   return err;
 }
 
 export function deserializeError(error) {
-  const err = new Error(error.message);
-  err.code = err.code;
+  let err;
+  // special case known types, otherwise use generic Error
+  if(error.constructor === 'DOMException') {
+    err = new DOMException(error.message, error.name)
+    // ignore code, name will set it
+  } else {
+    err = new Error(error.message);
+    if('code' in error) {
+      err.code = error.code;
+    }
+  }
   if(error.details) {
     err.details = error.details;
   }
