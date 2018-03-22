@@ -1,9 +1,7 @@
 /*!
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2017-2018 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
-
-import dialogPolyfill from 'dialog-polyfill';
 
 // default time out is 10 seconds
 const LOAD_WINDOW_TIMEOUT = 10000;
@@ -169,11 +167,6 @@ export class WebAppWindow {
     document.body.appendChild(self.dialog);
     self.handle = self.iframe.contentWindow;
 
-    // register dialog with dialog-polyfill if necessary
-    if(!self.dialog.showModal) {
-      dialogPolyfill.registerDialog(self.dialog);
-    }
-
     if(customize) {
       try {
         customize({
@@ -204,7 +197,9 @@ export class WebAppWindow {
       this.visible = true;
       if(this.dialog) {
         this.dialog.style.display = 'block';
-        this.dialog.showModal();
+        if(this.dialog.showModal) {
+          this.dialog.showModal();
+        }
       } else if(this.windowControl.show) {
         this.windowControl.show();
       }

@@ -2,6 +2,7 @@
 
 ### Changed
 - Improve error marshalling.
+- Do not bundle dialog polyfill or require HTML5 Dialog.
 
 ## 0.1.6 - 2017-09-03
 
