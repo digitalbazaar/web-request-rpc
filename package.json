@@ -16,13 +16,5 @@
   "bugs": {
     "url": "https://github.com/digitalbazaar/web-request-rpc/issues"
   },
-  "homepage": "https://github.com/digitalbazaar/web-request-rpc",
-  "dependencies": {
-    "dialog-polyfill": "^0.4.9"
-  },
-  "bedrock": {
-    "browserDependencies": [
-      "dialog-polyfill"
-    ]
-  }
+  "homepage": "https://github.com/digitalbazaar/web-request-rpc"
 }
