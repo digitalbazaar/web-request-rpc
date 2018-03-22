@@ -1,5 +1,7 @@
 # web-request-rpc ChangeLog
 
+## 0.1.7 - 2018-03-22
+
 ### Changed
 - Improve error marshalling.
 - Do not bundle dialog polyfill or require HTML5 Dialog.
