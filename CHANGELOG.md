@@ -1,5 +1,7 @@
 # web-request-rpc ChangeLog
 
+## 1.0.0 - 2018-07-20
+
 ## 0.1.7 - 2018-03-22
 
 ### Changed
