@@ -1,5 +1,9 @@
 # web-request-rpc ChangeLog
 
+### Fixed
+- Fix bugs with tracking pending requests; ensure to
+  terminate all pending requests when client closes.
+
 ## 1.0.0 - 2018-07-20
 
 ## 0.1.7 - 2018-03-22

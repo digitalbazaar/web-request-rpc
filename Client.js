@@ -50,12 +50,12 @@ export class Client {
       expectRequest: false,
       listener: message => {
         // ignore messages that have no matching, pending request
-        if(!(message.id in pending)) {
+        if(!pending.has(message.id)) {
           return;
         }
 
         // resolve or reject Promise associated with message
-        const {resolve, reject, cancelTimeout} = pending[message.id];
+        const {resolve, reject, cancelTimeout} = pending.get(message.id);
         cancelTimeout();
         if('result' in message) {
           return resolve(message.result);
@@ -112,14 +112,19 @@ export class Client {
       let cancelTimeout;
       if(timeout > 0) {
         const timeoutId = setTimeout(() => {
-          delete pending[message.id];
+          pending.delete(message.id);
           reject(new Error('RPC call timed out.'));
         }, timeout);
-        cancelTimeout = () => clearTimeout(timeoutId);
+        cancelTimeout = () => {
+          pending.delete(message.id);
+          clearTimeout(timeoutId);
+        };
       } else {
-        cancelTimeout = () => {};
+        cancelTimeout = () => {
+          pending.delete(message.id);
+        };
       }
-      pending[message.id] = {resolve, reject, cancelTimeout};
+      pending.set(message.id, {resolve, reject, cancelTimeout});
     });
   }
 
@@ -131,6 +136,10 @@ export class Client {
     if(this._listener) {
       window.removeEventListener('message', this._listener);
       this._handle = this.origin = this._listener = null;
+      // reject all pending calls
+      for(const value of this._pending.values()) {
+        value.reject(new Error('RPC client closed.'));
+      }
       this._pending = new Map();
     }
   }
