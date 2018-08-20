@@ -3,8 +3,8 @@
  */
 'use strict';
 
-// default time out is 10 seconds
-const LOAD_WINDOW_TIMEOUT = 10000;
+// default timeout is 60 seconds
+const LOAD_WINDOW_TIMEOUT = 60000;
 
 /**
  * Provides a window and API for remote Web applications. This API is typically
@@ -21,36 +21,34 @@ export class WebAppWindow {
       className = null,
       customize = null
     } = {}) {
-    const self = this;
-
-    self.visible = false;
-    self.dialog = null;
-    self.iframe = null;
-    self.handle = null;
-    self.windowControl = null;
-    self._ready = false;
-    self._private = {};
+    this.visible = false;
+    this.dialog = null;
+    this.iframe = null;
+    this.handle = null;
+    this.windowControl = null;
+    this._ready = false;
+    this._private = {};
 
     // private to allow caller to track readiness
-    self._private._readyPromise = new Promise((resolve, reject) => {
+    this._private._readyPromise = new Promise((resolve, reject) => {
       // reject if timeout reached
       const timeoutId = setTimeout(
         () => reject(new Error('Loading Web application window timed out.')),
         timeout);
-      self._private._resolveReady = value => {
+      this._private._resolveReady = value => {
         clearTimeout(timeoutId);
         resolve(value);
       };
     });
-    self._private.isReady = async () => {
-      return self._private._readyPromise;
+    this._private.isReady = async () => {
+      return this._private._readyPromise;
     };
 
     // private to disallow destruction via client
-    self._private.destroy = () => {
-      if(self.dialog) {
-        self.dialog.parentNode.removeChild(self.dialog);
-        self.dialog = null;
+    this._private.destroy = () => {
+      if(this.dialog) {
+        this.dialog.parentNode.removeChild(this.dialog);
+        this.dialog = null;
       }
     };
 
@@ -59,7 +57,7 @@ export class WebAppWindow {
       if(!(typeof iframe === 'object' && iframe.contentWindow)) {
         throw new TypeError('`options.iframe` must be an iframe element.');
       }
-      self.windowControl = {
+      this.windowControl = {
         handle: iframe.contentWindow,
         show() {
           iframe.style.visibility = 'visible';
@@ -68,21 +66,21 @@ export class WebAppWindow {
           iframe.style.visibility = 'hidden';
         }
       };
-      self.iframe = iframe;
-      self.handle = self.iframe.contentWindow;
+      this.iframe = iframe;
+      this.handle = this.iframe.contentWindow;
       return;
     }
 
     if(windowControl) {
       // TODO: validate `windowControl`
-      self.windowControl = windowControl;
-      self.handle = self.windowControl.handle;
+      this.windowControl = windowControl;
+      this.handle = this.windowControl.handle;
       return;
     }
 
     if(handle) {
       // TODO: validate `handle`
-      self.handle = handle;
+      this.handle = handle;
       return;
     }
 
@@ -93,8 +91,8 @@ export class WebAppWindow {
     }
 
     // create a top-level dialog overlay
-    self.dialog = document.createElement('dialog');
-    applyStyle(self.dialog, {
+    this.dialog = document.createElement('dialog');
+    applyStyle(this.dialog, {
       position: 'fixed',
       top: 0,
       right: 0,
@@ -112,9 +110,9 @@ export class WebAppWindow {
       overflow: 'hidden',
       'z-index': 1000000
     });
-    self.dialog.className = 'web-app-window';
+    this.dialog.className = 'web-app-window';
     if(typeof className === 'string') {
-      self.dialog.className = self.dialog.className + ' ' + className;
+      this.dialog.className = this.dialog.className + ' ' + className;
     }
 
     // ensure backdrop is transparent by default
@@ -125,8 +123,8 @@ export class WebAppWindow {
       }`));
 
     // create flex container for iframe
-    self.container = document.createElement('div');
-    applyStyle(self.container, {
+    this.container = document.createElement('div');
+    applyStyle(this.container, {
       position: 'relative',
       width: '100vw',
       height: '100vh',
@@ -137,10 +135,10 @@ export class WebAppWindow {
     });
 
     // create iframe
-    self.iframe = document.createElement('iframe');
-    self.iframe.src = url;
-    self.iframe.scrolling = 'no';
-    applyStyle(self.iframe, {
+    this.iframe = document.createElement('iframe');
+    this.iframe.src = url;
+    this.iframe.scrolling = 'no';
+    applyStyle(this.iframe, {
       position: 'relative',
       border: 'none',
       background: 'transparent',
@@ -153,27 +151,27 @@ export class WebAppWindow {
     });
 
     // assemble dialog
-    self.dialog.appendChild(style);
-    self.container.appendChild(self.iframe);
-    self.dialog.appendChild(self.container);
+    this.dialog.appendChild(style);
+    this.container.appendChild(this.iframe);
+    this.dialog.appendChild(this.container);
 
     // handle cancel (user pressed escape)
-    self.dialog.addEventListener('cancel', e => {
+    this.dialog.addEventListener('cancel', e => {
       e.preventDefault();
-      self.hide();
+      this.hide();
     });
 
     // attach to DOM
-    document.body.appendChild(self.dialog);
-    self.handle = self.iframe.contentWindow;
+    document.body.appendChild(this.dialog);
+    this.handle = this.iframe.contentWindow;
 
     if(customize) {
       try {
         customize({
-          dialog: self.dialog,
-          container: self.container,
-          iframe: self.iframe,
-          webAppWindow: self
+          dialog: this.dialog,
+          container: this.container,
+          iframe: this.iframe,
+          webAppWindow: this
         });
       } catch(e) {
         console.error(e);
@@ -195,6 +193,10 @@ export class WebAppWindow {
   show() {
     if(!this.visible) {
       this.visible = true;
+      // disable scrolling on body
+      const body = document.querySelector('body');
+      this._bodyOverflowStyle = body.style.overflow;
+      body.style.overflow = 'hidden';
       if(this.dialog) {
         this.dialog.style.display = 'block';
         if(this.dialog.showModal) {
@@ -212,6 +214,13 @@ export class WebAppWindow {
   hide() {
     if(this.visible) {
       this.visible = false;
+      // restore `overflow` style on body
+      const body = document.querySelector('body');
+      if(this._bodyOverflowStyle) {
+        body.style.overflow = this._bodyOverflowStyle;
+      } else {
+        body.style.overflow = '';
+      }
       if(this.dialog) {
         this.dialog.style.display = 'none';
         if(this.dialog.close) {
@@ -229,7 +238,7 @@ export class WebAppWindow {
 }
 
 function applyStyle(element, style) {
-  for(let name in style) {
+  for(const name in style) {
     element.style[name] = style[name];
   }
 }

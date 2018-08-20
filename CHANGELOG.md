@@ -1,5 +1,11 @@
 # web-request-rpc ChangeLog
 
+### Fixed
+- Disable body overflow when showing UI.
+
+### Changed
+- Make default loading timeout 60 seconds.
+
 ## 1.0.1 - 2018-07-30
 
 ### Fixed
