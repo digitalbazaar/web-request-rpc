@@ -1,5 +1,7 @@
 # web-request-rpc ChangeLog
 
+## 1.0.3 - 2018-09-27
+
 ### Fixed
 - Make early closing of WebAppContext more robust and
   expose `closed` flag.
