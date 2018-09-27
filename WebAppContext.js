@@ -18,6 +18,7 @@ export class WebAppContext {
     this.injector = null;
     this.control = null;
     this.loaded = false;
+    this.closed = false;
   }
 
   /**
@@ -92,8 +93,11 @@ export class WebAppContext {
   }
 
   close() {
-    this.control._private.destroy();
-    this.server.close();
-    this.client.close();
+    if(!this.closed) {
+      this.closed = true;
+      this.control._private.destroy();
+      this.server.close();
+      this.client.close();
+    }
   }
 }

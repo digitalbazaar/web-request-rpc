@@ -28,16 +28,24 @@ export class WebAppWindow {
     this.windowControl = null;
     this._ready = false;
     this._private = {};
+    this._timeoutId = null;
 
     // private to allow caller to track readiness
     this._private._readyPromise = new Promise((resolve, reject) => {
       // reject if timeout reached
-      const timeoutId = setTimeout(
-        () => reject(new Error('Loading Web application window timed out.')),
+      this._timeoutId = setTimeout(
+        () => reject(new DOMException(
+          'Loading Web application window timed out.', 'TimeoutError')),
         timeout);
       this._private._resolveReady = value => {
-        clearTimeout(timeoutId);
+        clearTimeout(this.timeoutId);
+        this._timeoutId = null;
         resolve(value);
+      };
+      this._private._rejectReady = err => {
+        clearTimeout(this.timeoutId);
+        this._timeoutId = null;
+        reject(err);
       };
     });
     this._private.isReady = async () => {
@@ -46,6 +54,11 @@ export class WebAppWindow {
 
     // private to disallow destruction via client
     this._private.destroy = () => {
+      // window not ready yet, but destroyed
+      if(this._timeoutId) {
+        this._private._rejectReady(new DOMException(
+          'Web application window closed before ready.', 'AbortError'));
+      }
       if(this.dialog) {
         this.dialog.parentNode.removeChild(this.dialog);
         this.dialog = null;
