@@ -1,5 +1,9 @@
 # web-request-rpc ChangeLog
 
+### Fixed
+- Use `fixed` positioning for WebAppWindow iframe to
+  fix mobile CSS issues.
+
 ## 1.0.3 - 2018-09-27
 
 ### Fixed

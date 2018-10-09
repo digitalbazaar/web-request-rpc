@@ -152,7 +152,7 @@ export class WebAppWindow {
     this.iframe.src = url;
     this.iframe.scrolling = 'no';
     applyStyle(this.iframe, {
-      position: 'relative',
+      position: 'fixed',
       border: 'none',
       background: 'transparent',
       overflow: 'hidden',
