@@ -1,5 +1,8 @@
 # web-request-rpc ChangeLog
 
+### Added
+- Add `web-app-window-backdrop` class for customization.
+
 ## 1.0.4 - 2018-10-09
 
 ### Fixed

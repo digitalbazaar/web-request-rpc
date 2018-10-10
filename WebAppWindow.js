@@ -146,6 +146,7 @@ export class WebAppWindow {
       display: 'flex',
       'flex-direction': 'column'
     });
+    this.container.className = 'web-app-window-backdrop';
 
     // create iframe
     this.iframe = document.createElement('iframe');
