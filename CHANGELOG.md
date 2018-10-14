@@ -1,5 +1,7 @@
 # web-request-rpc ChangeLog
 
+## 1.1.1 - 2018-10-10
+
 ### Fixed
 - Ensure default web app window iframe cannot be larger than
   viewport.
