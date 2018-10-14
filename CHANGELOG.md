@@ -1,5 +1,7 @@
 # web-request-rpc ChangeLog
 
+## 1.1.2 - 2018-10-14
+
 ### Changed
 - Use percentages instead of viewport units.
 
