@@ -108,11 +108,9 @@ export class WebAppWindow {
     applyStyle(this.dialog, {
       position: 'fixed',
       top: 0,
-      right: 0,
-      bottom: 0,
       left: 0,
-      width: 'auto',
-      height: 'auto',
+      width: '100%',
+      height: '100%',
       display: 'none',
       margin: 0,
       padding: 0,
@@ -139,8 +137,8 @@ export class WebAppWindow {
     this.container = document.createElement('div');
     applyStyle(this.container, {
       position: 'relative',
-      width: '100vw',
-      height: '100vh',
+      width: '100%',
+      height: '100%',
       margin: 0,
       padding: 0,
       display: 'flex',
@@ -154,16 +152,16 @@ export class WebAppWindow {
     this.iframe.scrolling = 'no';
     applyStyle(this.iframe, {
       position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
       border: 'none',
       background: 'transparent',
       overflow: 'hidden',
       margin: 0,
       padding: 0,
-      'flex-grow': 1,
-      width: '100%',
-      height: '100%',
-      'max-width': '100vw',
-      'max-height': '100vh'
+      'flex-grow': 1
     });
 
     // assemble dialog
