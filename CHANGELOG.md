@@ -1,6 +1,6 @@
 # web-request-rpc ChangeLog
 
-## 1.1.4 - 2019-06-xx
+## 1.1.4 - 2019-06-07
 
 ### Fixed
 - Ensure legacy URL parser prefixes `/` to pathname.
