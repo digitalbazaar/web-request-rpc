@@ -72,6 +72,12 @@ export function parseUrl(url, base) {
     origin += window.location.host;
   }
 
+  // ensure pathname begins with `/`
+  let pathname = parser.pathname;
+  if(!pathname.startsWith('/')) {
+    pathname = '/' + pathname;
+  }
+
   return {
     // TODO: is this safe for general use on every browser that doesn't
     //   support WHATWG URL?
@@ -79,7 +85,7 @@ export function parseUrl(url, base) {
     hostname: parser.hostname,
     origin: origin,
     protocol: parser.protocol,
-    pathname: parser.pathname
+    pathname: pathname
   };
 }
 
