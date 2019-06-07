@@ -38,7 +38,7 @@ export function parseUrl(url, base) {
     base = window.location.href;
   }
 
-  if(typeof URL !== 'undefined') {
+  if(typeof URL === 'function') {
     return new URL(url, base);
   }
 

@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 1.1.3 - 2019-06-xx
+
+### Fixed
+- Fix URL constructor feature detection.
+
 ## 1.1.2 - 2018-10-14
 
 ### Changed
