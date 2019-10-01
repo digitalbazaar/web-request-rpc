@@ -1,5 +1,11 @@
 # web-request-rpc ChangeLog
 
+## 1.1.5 - 2019-10-xx
+
+### Fixed
+- Allow iframes for WebAppWindows to enable scrolling automatically
+  to better emulate normal pages.
+
 ## 1.1.4 - 2019-06-07
 
 ### Fixed

@@ -149,7 +149,7 @@ export class WebAppWindow {
     // create iframe
     this.iframe = document.createElement('iframe');
     this.iframe.src = url;
-    this.iframe.scrolling = 'no';
+    this.iframe.scrolling = 'auto';
     applyStyle(this.iframe, {
       position: 'fixed',
       top: 0,
