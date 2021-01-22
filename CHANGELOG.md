@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 1.1.7 - 2021-01-22
+
+### Fixed
+- Fix typo.
+
 ## 1.1.6 - 2021-01-22
 
 ### Fixed
