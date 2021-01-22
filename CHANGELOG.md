@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 1.1.6 - 2021-01-22
+
+### Fixed
+- Fix CSS dialog issue with Chrome 88.
+
 ## 1.1.5 - 2019-10-01
 
 ### Fixed
