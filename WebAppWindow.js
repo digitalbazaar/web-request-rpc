@@ -111,6 +111,8 @@ export class WebAppWindow {
       left: 0,
       width: '100%',
       height: '100%',
+      max-width: '100%',
+      max-height: '100%',
       display: 'none',
       margin: 0,
       padding: 0,
