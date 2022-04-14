@@ -15,9 +15,13 @@ export class WebAppWindow {
   constructor(
     url, {
       timeout = LOAD_WINDOW_TIMEOUT,
-      handle,
-      iframe,
-      windowControl,
+      // FIXME: Remove if not used
+      // handle,
+      // FIXME: Remove if not used
+      // iframe,
+      popup = false,
+      // FIXME: Remove if not used
+      // windowControl,
       className = null,
       customize = null
     } = {}) {
@@ -25,11 +29,14 @@ export class WebAppWindow {
     this.dialog = null;
     this.iframe = null;
     this.handle = null;
+    this.popup = popup;
     this.windowControl = null;
+    this._destroyed = false;
     this._ready = false;
     this._private = {};
     this._timeoutId = null;
 
+    console.log('create new web app window')
     // private to allow caller to track readiness
     this._private._readyPromise = new Promise((resolve, reject) => {
       // reject if timeout reached
@@ -59,43 +66,47 @@ export class WebAppWindow {
         this._private._rejectReady(new DOMException(
           'Web application window closed before ready.', 'AbortError'));
       }
-      if(this.dialog) {
+      if(!this._destroyed) {
         this.dialog.parentNode.removeChild(this.dialog);
         this.dialog = null;
+        this._destroyed = true;
       }
     };
 
-    if(iframe) {
-      // TODO: validate `iframe` option as much as possible
-      if(!(typeof iframe === 'object' && iframe.contentWindow)) {
-        throw new TypeError('`options.iframe` must be an iframe element.');
-      }
-      this.windowControl = {
-        handle: iframe.contentWindow,
-        show() {
-          iframe.style.visibility = 'visible';
-        },
-        hide() {
-          iframe.style.visibility = 'hidden';
-        }
-      };
-      this.iframe = iframe;
-      this.handle = this.iframe.contentWindow;
-      return;
-    }
+    // FIXME: Remove if not used
+    // if(iframe) {
+    //   // TODO: validate `iframe` option as much as possible
+    //   if(!(typeof iframe === 'object' && iframe.contentWindow)) {
+    //     throw new TypeError('`options.iframe` must be an iframe element.');
+    //   }
+    //   this.windowControl = {
+    //     handle: iframe.contentWindow,
+    //     show() {
+    //       iframe.style.visibility = 'visible';
+    //     },
+    //     hide() {
+    //       iframe.style.visibility = 'hidden';
+    //     }
+    //   };
+    //   this.iframe = iframe;
+    //   this.handle = this.iframe.contentWindow;
+    //   return;
+    // }
 
-    if(windowControl) {
-      // TODO: validate `windowControl`
-      this.windowControl = windowControl;
-      this.handle = this.windowControl.handle;
-      return;
-    }
+    // FIXME: Remove if not used
+    // if(windowControl) {
+    //   // TODO: validate `windowControl`
+    //   this.windowControl = windowControl;
+    //   this.handle = this.windowControl.handle;
+    //   return;
+    // }
 
-    if(handle) {
-      // TODO: validate `handle`
-      this.handle = handle;
-      return;
-    }
+    // FIXME: Remove if not used
+    // if(handle) {
+    //   // TODO: validate `handle`
+    //   this.handle = handle;
+    //   return;
+    // }
 
     if(customize) {
       if(!typeof customize === 'function') {
@@ -103,6 +114,73 @@ export class WebAppWindow {
       }
     }
 
+    // if(this.popup) {
+    //   const webAppWindowHandle = openWindow({url, name: 'web-app-window'});
+    //   return;
+    // }
+
+    this._createIframe({url, customize, className});
+  }
+
+  /**
+   * Called by the client when it is ready to receive messages.
+   */
+  ready() {
+    this._ready = true;
+    this._private._resolveReady(true);
+  }
+
+  /**
+   * Called by the client when it wants to show UI.
+   */
+  show() {
+    if(!this.visible) {
+      this.visible = true;
+      // disable scrolling on body
+      const body = document.querySelector('body');
+      this._bodyOverflowStyle = body.style.overflow;
+      body.style.overflow = 'hidden';
+      if(!this._destroyed) {
+        this.dialog.style.display = 'block';
+        if(this.dialog.showModal) {
+          this.dialog.showModal();
+        }
+      } else if(this.windowControl.show) {
+        this.windowControl.show();
+      }
+    }
+  }
+
+  /**
+   * Called by the client when it wants to hide UI.
+   */
+  hide() {
+    if(this.visible) {
+      this.visible = false;
+      // restore `overflow` style on body
+      const body = document.querySelector('body');
+      if(this._bodyOverflowStyle) {
+        body.style.overflow = this._bodyOverflowStyle;
+      } else {
+        body.style.overflow = '';
+      }
+      if(!this._destroyed) {
+        this.dialog.style.display = 'none';
+        if(this.dialog.close) {
+          try {
+            this.dialog.close();
+          } catch(e) {
+            console.error(e);
+          }
+        }
+      } else if(this.windowControl.hide) {
+        this.windowControl.hide();
+      }
+    }
+  }
+
+
+  _createIframe({url, customize, className}) {
     // create a top-level dialog overlay
     this.dialog = document.createElement('dialog');
     applyStyle(this.dialog, {
@@ -171,6 +249,7 @@ export class WebAppWindow {
     this.container.appendChild(this.iframe);
     this.dialog.appendChild(this.container);
 
+    // a.document.appendChild(this.iframe);
     // handle cancel (user pressed escape)
     this.dialog.addEventListener('cancel', e => {
       e.preventDefault();
@@ -194,67 +273,28 @@ export class WebAppWindow {
       }
     }
   }
-
-  /**
-   * Called by the client when it is ready to receive messages.
-   */
-  ready() {
-    this._ready = true;
-    this._private._resolveReady(true);
-  }
-
-  /**
-   * Called by the client when it wants to show UI.
-   */
-  show() {
-    if(!this.visible) {
-      this.visible = true;
-      // disable scrolling on body
-      const body = document.querySelector('body');
-      this._bodyOverflowStyle = body.style.overflow;
-      body.style.overflow = 'hidden';
-      if(this.dialog) {
-        this.dialog.style.display = 'block';
-        if(this.dialog.showModal) {
-          this.dialog.showModal();
-        }
-      } else if(this.windowControl.show) {
-        this.windowControl.show();
-      }
-    }
-  }
-
-  /**
-   * Called by the client when it wants to hide UI.
-   */
-  hide() {
-    if(this.visible) {
-      this.visible = false;
-      // restore `overflow` style on body
-      const body = document.querySelector('body');
-      if(this._bodyOverflowStyle) {
-        body.style.overflow = this._bodyOverflowStyle;
-      } else {
-        body.style.overflow = '';
-      }
-      if(this.dialog) {
-        this.dialog.style.display = 'none';
-        if(this.dialog.close) {
-          try {
-            this.dialog.close();
-          } catch(e) {
-            console.error(e);
-          }
-        }
-      } else if(this.windowControl.hide) {
-        this.windowControl.hide();
-      }
-    }
-  }
 }
 
 function applyStyle(element, style) {
   for(const name in style) {
     element.style[name] = style[name];
   }
+}
+
+function openWindow({url, name}) {
+  const width = 500;
+  const height = 120;
+  const left = window.screenX - (width / 2);
+  const top = window.screenY - (height / 2);
+  const features =
+    'menubar=no,location=no,resizable=no,scrollbars=no,status=no,' +
+    `width=${width},height=${height},left=${left},top=${top}`;
+  const handle = window.open(url, name, features);
+  handle.addEventListener('load', () => {
+    handle.addEventListener('unload', () => {
+      console.log({foo: 'bar'});
+    }, {once: true});
+  }, {once: true});
+
+  return handle;
 }
