@@ -2,6 +2,7 @@
  * Copyright (c) 2017-2022 Digital Bazaar, Inc. All rights reserved.
  */
 import {WebAppWindowInlineDialog} from './WebAppWindowInlineDialog.js';
+import {WebAppWindowPopupDialog} from './WebAppWindowPopupDialog.js';
 
 // default timeout is 60 seconds
 const LOAD_WINDOW_TIMEOUT = 60000;
@@ -19,7 +20,7 @@ export class WebAppWindow {
       // handle,
       // FIXME: Remove if not used
       // iframe,
-      popup = false,
+      popup = true,
       // FIXME: Remove if not used
       // windowControl,
       className = null,
@@ -36,6 +37,7 @@ export class WebAppWindow {
     this._private = {};
     this._timeoutId = null;
 
+    console.trace('here')
     console.log('create new web app window')
     // private to allow caller to track readiness
     this._private._readyPromise = new Promise((resolve, reject) => {
@@ -114,15 +116,28 @@ export class WebAppWindow {
       }
     }
 
-    // if(this.popup) {
-    //   const webAppWindowHandle = openWindow({url, name: 'web-app-window'});
-    //   return;
-    // }
+    if(this.popup) {
+      this.dialog = new WebAppWindowPopupDialog({url});
+    } else {
+      alert('why am i here')
+      console.log('create inline dialog')
+      this.dialog = new WebAppWindowInlineDialog({url, customize, className});
+    }
 
-    console.log('create inline dialog')
-    this.dialog = new WebAppWindowInlineDialog({url, customize, className});
     this.handle = this.dialog.handle;
-    console.log(this.dialog);
+    console.log(this.handle);
+    if(customize) {
+      try {
+        customize({
+          dialog: this.dialog.dialog,
+          container: this.dialog.container,
+          iframe: this.dialog.iframe,
+          webAppWindow: this
+        });
+      } catch(e) {
+        console.error(e);
+      }
+    }
   }
 
   /**
@@ -137,6 +152,7 @@ export class WebAppWindow {
    * Called by the client when it wants to show UI.
    */
   show() {
+    console.log('show WebAppWindow.js')
     if(!this.visible) {
       this.visible = true;
       // disable scrolling on body
@@ -171,22 +187,4 @@ export class WebAppWindow {
       }
     }
   }
-}
-
-function openWindow({url, name}) {
-  const width = 500;
-  const height = 120;
-  const left = window.screenX - (width / 2);
-  const top = window.screenY - (height / 2);
-  const features =
-    'menubar=no,location=no,resizable=no,scrollbars=no,status=no,' +
-    `width=${width},height=${height},left=${left},top=${top}`;
-  const handle = window.open(url, name, features);
-  handle.addEventListener('load', () => {
-    handle.addEventListener('unload', () => {
-      console.log({foo: 'bar'});
-    }, {once: true});
-  }, {once: true});
-
-  return handle;
 }

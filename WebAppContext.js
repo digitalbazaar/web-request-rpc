@@ -58,6 +58,8 @@ export class WebAppContext {
     }
     this.loaded = true;
 
+    console.log('WWWWWWWWWWWWWWWW',
+    'create control API for WebApp to call via its own RPC client')
     // create control API for WebApp to call via its own RPC client
     this.control = new WebAppWindow(url, {
       timeout,

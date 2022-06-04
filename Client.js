@@ -42,6 +42,7 @@ export class Client {
     const self = this;
     self.origin = utils.parseUrl(origin).origin;
     self._handle = options.handle || window.parent || window.opener;
+    console.log('self._handle', self._handle);
 
     const pending = self._pending;
     self._listener = utils.createMessageListener({
