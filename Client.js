@@ -27,7 +27,7 @@ export class Client {
    * @param options the options to use:
    *          [handle] a handle to the window (or a Promise that resolves to
    *            a handle) to send messages to
-   *            (defaults to `window.parent || window.opener`).
+   *            (defaults to `window.opener || window.parent`).
    *
    * @return a Promise that resolves to an RPC injector once connected.
    */
@@ -41,7 +41,7 @@ export class Client {
     // TODO: validate `origin` and `options.handle`
     const self = this;
     self.origin = utils.parseUrl(origin).origin;
-    self._handle = options.handle || window.parent || window.opener;
+    self._handle = options.handle || window.opener || window.parent;
     console.log('self._handle', self._handle);
 
     const pending = self._pending;
