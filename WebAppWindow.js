@@ -16,8 +16,8 @@ export class WebAppWindow {
   constructor(
     url, {
       timeout = LOAD_WINDOW_TIMEOUT,
-      // FIXME: Remove if not used
-      // handle,
+      // FIXME: Allow this only for popup windows
+      handle,
       // FIXME: Remove if not used
       // iframe,
       popup = false,
@@ -116,9 +116,9 @@ export class WebAppWindow {
     }
 
     if(this.popup) {
-      this.dialog = new WebAppWindowPopupDialog({url});
+      this.dialog = new WebAppWindowPopupDialog({url, handle});
     } else {
-      console.log('create inline dialog')
+      console.trace('create inline dialog')
       this.dialog = new WebAppWindowInlineDialog({url, customize, className});
     }
 
