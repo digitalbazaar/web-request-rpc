@@ -5,7 +5,6 @@ import {WebAppWindowDialog} from './WebAppWindowDialog.js';
 
 export class WebAppWindowInlineDialog extends WebAppWindowDialog {
   constructor({url, customize, className}) {
-    console.log('open inline dialog')
     super();
     // create a top-level dialog overlay
     this.dialog = document.createElement('dialog');
@@ -88,7 +87,6 @@ export class WebAppWindowInlineDialog extends WebAppWindowDialog {
   }
 
   show() {
-    console.log('show WebAppWindowInlineDialog')
     this.dialog.style.display = 'block';
     if(this.dialog.showModal) {
       this.dialog.showModal();

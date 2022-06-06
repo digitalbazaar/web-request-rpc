@@ -20,7 +20,7 @@ export class WebAppWindow {
       // handle,
       // FIXME: Remove if not used
       // iframe,
-      popup = true,
+      popup = false,
       // FIXME: Remove if not used
       // windowControl,
       className = null,
@@ -37,7 +37,6 @@ export class WebAppWindow {
     this._private = {};
     this._timeoutId = null;
 
-    console.trace('here')
     console.log('create new web app window')
     // private to allow caller to track readiness
     this._private._readyPromise = new Promise((resolve, reject) => {
@@ -119,13 +118,11 @@ export class WebAppWindow {
     if(this.popup) {
       this.dialog = new WebAppWindowPopupDialog({url});
     } else {
-      alert('why am i here')
       console.log('create inline dialog')
       this.dialog = new WebAppWindowInlineDialog({url, customize, className});
     }
 
     this.handle = this.dialog.handle;
-    console.log(this.handle);
     if(customize) {
       try {
         customize({
@@ -152,7 +149,6 @@ export class WebAppWindow {
    * Called by the client when it wants to show UI.
    */
   show() {
-    console.log('show WebAppWindow.js')
     if(!this.visible) {
       this.visible = true;
       // disable scrolling on body
