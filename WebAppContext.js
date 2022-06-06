@@ -47,6 +47,7 @@ export class WebAppContext {
     url, {
       timeout = WEB_APP_CONTEXT_LOAD_TIMEOUT,
       iframe,
+      popup = false,
       handle,
       windowControl,
       className,
@@ -64,6 +65,7 @@ export class WebAppContext {
     this.control = new WebAppWindow(url, {
       timeout,
       iframe,
+      popup,
       handle,
       windowControl,
       className,
