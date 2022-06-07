@@ -47,6 +47,7 @@ export class WebAppContext {
     url, {
       timeout = WEB_APP_CONTEXT_LOAD_TIMEOUT,
       iframe,
+      dialog = null,
       popup = false,
       handle,
       windowControl,
@@ -64,6 +65,7 @@ export class WebAppContext {
     // create control API for WebApp to call via its own RPC client
     this.control = new WebAppWindow(url, {
       timeout,
+      dialog,
       iframe,
       popup,
       handle,

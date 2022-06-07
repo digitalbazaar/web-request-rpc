@@ -4,8 +4,9 @@
 import {WebAppWindowDialog} from './WebAppWindowDialog.js';
 
 export class WebAppWindowInlineDialog extends WebAppWindowDialog {
-  constructor({url, customize, className}) {
+  constructor({url, handle, customize, className}) {
     super();
+    this.handle = handle;
     // create a top-level dialog overlay
     this.dialog = document.createElement('dialog');
     applyStyle(this.dialog, {
