@@ -16,6 +16,7 @@ export class WebAppWindow {
   constructor(
     url, {
       timeout = LOAD_WINDOW_TIMEOUT,
+      dialog = null,
       // FIXME: Allow this only for popup windows
       handle,
       // FIXME: Remove if not used
@@ -27,7 +28,7 @@ export class WebAppWindow {
       customize = null
     } = {}) {
     this.visible = false;
-    this.dialog = null;
+    this.dialog = dialog;
     this.iframe = null;
     this.handle = null;
     this.popup = popup;
@@ -38,6 +39,9 @@ export class WebAppWindow {
     this._timeoutId = null;
 
     console.log('create new web app window')
+    if(handle && handle._dialog) {
+      this.dialog = dialog = handle._dialog;
+    }
     // private to allow caller to track readiness
     this._private._readyPromise = new Promise((resolve, reject) => {
       // reject if timeout reached
@@ -115,11 +119,16 @@ export class WebAppWindow {
       }
     }
 
-    if(this.popup) {
-      this.dialog = new WebAppWindowPopupDialog({url, handle});
-    } else {
-      console.trace('create inline dialog')
-      this.dialog = new WebAppWindowInlineDialog({url, customize, className});
+    console.log('im a dialog', this.dialog)
+    if(!this.dialog) {
+      if(this.popup) {
+        this.dialog = new WebAppWindowPopupDialog({url, handle});
+      } else {
+        console.trace('create inline dialog')
+        this.dialog = new WebAppWindowInlineDialog({
+          url, handle, customize, className
+        });
+      }
     }
 
     this.handle = this.dialog.handle;

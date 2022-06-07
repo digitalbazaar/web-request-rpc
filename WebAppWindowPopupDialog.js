@@ -39,12 +39,12 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
       `width=${width},height=${height},left=${left},top=${top}`;
     this.handle = window.open(url, name, features);
 
-    this.handle.addEventListener('load', () => {
-      this.handle.addEventListener('unload', () => {
-        this.destroyed = true;
-      }, {once: true});
-    }, {once: true});
+    // this.handle.addEventListener('load', () => {
+    //   this.handle.addEventListener('unload', () => {
+    //     this.destroyed = true;
+    //   }, {once: true});
+    // }, {once: true});
 
-    window.addEventListener('unload', () => this.destroy(), {once: true});
+    // window.addEventListener('unload', () => this.destroy(), {once: true});
   }
 }
