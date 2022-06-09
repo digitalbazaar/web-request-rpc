@@ -39,9 +39,10 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
     this.setListeners();
   }
 
-  setLocation(location) {
+  setLocation(url) {
     this.removeListeners();
-    this.handle.location.href = location;
+    this.url = url;
+    this.handle.location.href = url;
     this.setListeners();
   }
 
