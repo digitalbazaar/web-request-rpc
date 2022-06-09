@@ -6,6 +6,7 @@ import {WebAppWindowDialog} from './WebAppWindowDialog.js';
 export class WebAppWindowPopupDialog extends WebAppWindowDialog {
   constructor({url, handle, width = 500, height = 400}) {
     super();
+    this.url = url;
     this.handle = handle;
     if(!handle) {
       this._openWindow({url, name: 'web-app-window', width, height});
