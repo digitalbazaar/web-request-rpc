@@ -7,24 +7,30 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
   constructor({url, handle, width = 500, height = 400}) {
     super();
     this.url = url;
+    // FIXME: do not reuse handle, reuse entire dialog class instead
     this.handle = handle;
+    this._locationChanging = false;
     if(!handle) {
       this._openWindow({url, name: 'web-app-window', width, height});
     }
     this.destroyed = false;
+    this._removeListeners = () => {};
   }
 
   show() {}
 
   close() {
+    console.log('close called on popup dialog');
     this.destroy();
   }
 
   destroy() {
+    console.log('destroy called on popup dialog');
     if(this.handle && !this.destroyed) {
       this.handle.close();
       this.handle = null;
       this.destroyed = true;
+      this._removeListeners();
     }
   }
 
@@ -35,52 +41,50 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
       'menubar=no,location=no,resizable=no,scrollbars=no,status=no,' +
       `width=${width},height=${height},left=${left},top=${top}`;
     this.handle = window.open(url, name, features);
+    this._locationChanging = true;
 
-    this.setListeners();
+    this._addListeners();
   }
 
   setLocation(url) {
-    this.removeListeners();
     this.url = url;
-    this.handle.location.href = url;
-    this.setListeners();
+    this._locationChanging = true;
+    this.handle.location.replace(url);
   }
 
-  setListeners() {
-    // create the on load handler that will set this.destroyed to true when
-    // an unload event comes in
-    if(!this._setDestroyedToTrueOnLoadHandler) {
-      // store handler function
-      this._setDestroyedToTrueOnLoadHandler = () => {
-        // create the on unload handler that will set this.destroyed to true, if
-        // not already created
-        if(!this._setDestroyedToTrue) {
-          this._setDestroyedToTrue = () => this.destroyed = true;
-        }
-        // add the unload handler
-        this.handle.addEventListener('unload', this._setDestroyedToTrue,
-          {once: true});
+  _addListeners() {
+    const destroyDialog = () => this.destroy();
+
+    // when a new URL loads in the dialog, clear the location changing flag
+    const loadDialog = () => {
+      console.log('dialog loaded, clearing location changing flag');
+      this._locationChanging = false;
+    };
+
+    // when the dialog URL changes...
+    const unloadDialog = () => {
+      if(this._locationChanging) {
+        // a location change was expected, return
+        console.log('dialog unloaded but expected a location change');
+        return;
       }
-    }
 
-    // create the on unload handler that will call this.destroy(), if no
-    // already created
-    if(!this._destroyUnloadHandler) {
-      this._destroyUnloadHandler = () => this.destroy();
-    }
-    // add the load handler
-    this.handle.addEventListener('load', this._setDestroyedToTrueOnLoadHandler,
-      {once: true});
-    // add the unload handler
-    window.addEventListener('unload', this._destroyUnloadHandler, {once: true});
-  }
+      // a location change was NOT expected, destroy the dialog
+      console.log('dialog unloaded and NOT expected, destroying dialog');
+      this.destroy();
+    };
 
-  removeListeners() {
-    this.handle.removeEventListener(
-      'load', this._setDestroyedToTrueOnLoadHandler, {once: true});
-    this.handle.removeEventListener('unload', this._setDestroyedToTrue,
-      {once: true});
-    window.removeEventListener('unload', this._destroyUnloadHandler,
-      {once: true});
+    this.handle.addEventListener('unload', unloadDialog);
+    this.handle.addEventListener('load', loadDialog);
+
+    // before the current window unloads, destroy the child dialog
+    window.addEventListener('beforeUnload', destroyDialog, {once: true});
+
+    // create listener clean up function
+    this._removeListeners = () => {
+      this.handle.removeListener('unload', unloadDialog);
+      this.handle.removeListener('load', loadDialog);
+      window.removeEventListener('beforeUnload', destroyDialog);
+    }
   }
 }
