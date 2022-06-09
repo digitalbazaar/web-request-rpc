@@ -19,17 +19,12 @@ export class WebAppWindow {
       dialog = null,
       // FIXME: Allow this only for popup windows
       handle,
-      // FIXME: Remove if not used
-      // iframe,
       popup = false,
-      // FIXME: Remove if not used
-      // windowControl,
       className = null,
       customize = null
     } = {}) {
     this.visible = false;
     this.dialog = dialog;
-    this.iframe = null;
     this.handle = null;
     this.popup = popup;
     this.windowControl = null;
@@ -38,7 +33,6 @@ export class WebAppWindow {
     this._private = {};
     this._timeoutId = null;
 
-    console.log('create new web app window')
     if(handle && handle._dialog) {
       this.dialog = dialog = handle._dialog;
     }
@@ -78,56 +72,17 @@ export class WebAppWindow {
       }
     };
 
-    // FIXME: Remove if not used
-    // if(iframe) {
-    //   // TODO: validate `iframe` option as much as possible
-    //   if(!(typeof iframe === 'object' && iframe.contentWindow)) {
-    //     throw new TypeError('`options.iframe` must be an iframe element.');
-    //   }
-    //   this.windowControl = {
-    //     handle: iframe.contentWindow,
-    //     show() {
-    //       iframe.style.visibility = 'visible';
-    //     },
-    //     hide() {
-    //       iframe.style.visibility = 'hidden';
-    //     }
-    //   };
-    //   this.iframe = iframe;
-    //   this.handle = this.iframe.contentWindow;
-    //   return;
-    // }
-
-    // FIXME: Remove if not used
-    // if(windowControl) {
-    //   // TODO: validate `windowControl`
-    //   this.windowControl = windowControl;
-    //   this.handle = this.windowControl.handle;
-    //   return;
-    // }
-
-    // FIXME: Remove if not used
-    // if(handle) {
-    //   // TODO: validate `handle`
-    //   this.handle = handle;
-    //   return;
-    // }
-
     if(customize) {
       if(!typeof customize === 'function') {
         throw new TypeError('`options.customize` must be a function.');
       }
     }
 
-    console.log('im a dialog', this.dialog)
     if(!this.dialog) {
       if(this.popup) {
         this.dialog = new WebAppWindowPopupDialog({url, handle});
       } else {
-        console.trace('create inline dialog')
-        this.dialog = new WebAppWindowInlineDialog({
-          url, handle, customize, className
-        });
+        this.dialog = new WebAppWindowInlineDialog({url, handle, className});
       }
     }
 

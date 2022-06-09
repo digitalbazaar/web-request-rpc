@@ -67,7 +67,6 @@ export class WebApp {
    * Shows the UI for this WebApp on the relying origin.
    */
   async show() {
-    console.log('show WebApp.js', this)
     if(!this._connected) {
       throw new Error(
         'Cannot "show" yet; not connected. Did you call ".connect()"?');

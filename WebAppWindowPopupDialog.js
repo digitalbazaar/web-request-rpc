@@ -4,11 +4,11 @@
 import {WebAppWindowDialog} from './WebAppWindowDialog.js';
 
 export class WebAppWindowPopupDialog extends WebAppWindowDialog {
-  constructor({url, handle}) {
+  constructor({url, handle, width = 500, height = 400}) {
     super();
     this.handle = handle;
     if(!handle) {
-      this._openWindow({url, name: 'web-app-window'});
+      this._openWindow({url, name: 'web-app-window', width, height});
     }
     this.destroyed = false;
   }
@@ -27,11 +27,7 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
     }
   }
 
-  _openWindow({url, name}) {
-    console.log('open window', {url, name})
-
-    const width = 500;
-    const height = 120;
+  _openWindow({url, name, width, height}) {
     const left = window.screenX - (width / 2);
     const top = window.screenY - (height / 2);
     const features =
