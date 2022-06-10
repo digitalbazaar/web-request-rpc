@@ -77,6 +77,9 @@ export class WebAppContext {
       bounds
     });
 
+    // if the local window closes, close the control window as well
+    window.addEventListener('pagehide', () => this.close(), {once: true});
+
     // define control class; this enables the WebApp that is running in the
     // WebAppContext to control its UI or close itself down
     this.server.define('core.control', this.control);
