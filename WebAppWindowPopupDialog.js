@@ -15,6 +15,28 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
     }
     this.destroyed = false;
     this._removeListeners = () => {};
+
+    this._closeEventListeners = new Set();
+  }
+
+  addEventListener(name, listener) {
+    if(name !== 'close') {
+      throw new Error(`Unknown event "${name}".`);
+    }
+    if(typeof listener !== 'function') {
+      throw new TypeError('"listener" must be a function.');
+    }
+    this._closeEventListeners.add(listener);
+  }
+
+  removeEventListener(name, listener) {
+    if(name !== 'close') {
+      throw new Error(`Unknown event "${name}".`);
+    }
+    if(typeof listener !== 'function') {
+      throw new TypeError('"listener" must be a function.');
+    }
+    this._closeEventListeners.delete(listener);
   }
 
   show() {}
@@ -31,6 +53,11 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
       this.handle = null;
       this.destroyed = true;
       this._removeListeners();
+      // emit event to all `close` event listeners
+      for(const listener of this._closeEventListeners) {
+        listener({});
+      }
+      this._closeEventListeners.clear();
     }
   }
 
