@@ -21,7 +21,9 @@ export class WebAppWindow {
       handle,
       popup = false,
       className = null,
-      customize = null
+      customize = null,
+      // top, left, width, height
+      bounds
     } = {}) {
     this.visible = false;
     this.dialog = dialog;
@@ -80,9 +82,20 @@ export class WebAppWindow {
 
     if(!this.dialog) {
       if(this.popup) {
-        this.dialog = new WebAppWindowPopupDialog({url, handle});
+        this.dialog = new WebAppWindowPopupDialog({url, handle, bounds});
       } else {
         this.dialog = new WebAppWindowInlineDialog({url, handle, className});
+      }
+    } else if(this.popup && bounds) {
+      // resize / re-position popup window as requested
+      if(bounds) {
+        const {top: y, left: x, width, height} = bounds;
+        if(x !== undefined && y !== undefined) {
+          this.dialog.handle.moveTo(x, y);
+        }
+        if(width !== undefined && height !== undefined) {
+          this.dialog.handle.resizeTo(width, height);
+        }
       }
     }
 
