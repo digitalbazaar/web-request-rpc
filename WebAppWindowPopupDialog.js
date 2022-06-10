@@ -34,6 +34,10 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
     }
   }
 
+  isClosed() {
+    return !this.handle || this.handle.closed;
+  }
+
   _openWindow({url, name, width, height}) {
     const left = window.screenX - (width / 2);
     const top = window.screenY - (height / 2);
@@ -80,8 +84,18 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
     // before the current window unloads, destroy the child dialog
     window.addEventListener('beforeUnload', destroyDialog, {once: true});
 
+    // poll to check for closed window handle; necessary because cross domain
+    // windows will not emit any close-related events we can use here
+    const intervalId = setInterval(() => {
+      if(this.isClosed()) {
+        this.destroy();
+        clearInterval(intervalId);
+      }
+    }, 250);
+
     // create listener clean up function
     this._removeListeners = () => {
+      clearInterval(intervalId);
       this.handle.removeListener('unload', unloadDialog);
       this.handle.removeListener('load', loadDialog);
       window.removeEventListener('beforeUnload', destroyDialog);
