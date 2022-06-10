@@ -4,14 +4,14 @@
 import {WebAppWindowDialog} from './WebAppWindowDialog.js';
 
 export class WebAppWindowPopupDialog extends WebAppWindowDialog {
-  constructor({url, handle, width = 500, height = 400}) {
+  constructor({url, handle, bounds = {width: 500, height: 400}}) {
     super();
     this.url = url;
     // FIXME: do not reuse handle, reuse entire dialog class instead
     this.handle = handle;
     this._locationChanging = false;
     if(!handle) {
-      this._openWindow({url, name: 'web-app-window', width, height});
+      this._openWindow({url, name: 'web-app-window', bounds});
     }
     this.destroyed = false;
     this._removeListeners = () => {};
@@ -65,14 +65,20 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
     return !this.handle || this.handle.closed;
   }
 
-  _openWindow({url, name, width, height}) {
-    const left = window.screenX - (width / 2);
-    const top = window.screenY - (height / 2);
+  _openWindow({url, name, bounds}) {
+    const {x, y} = bounds;
+    let {width = 500, height = 400} = bounds;
+    width = Math.min(width, window.innerWidth);
+    height = Math.min(height, window.innerHeight);
+    const left = x !== undefined ?
+      x : window.screenX + (window.innerWidth - width) / 2;
+    const top = y !== undefined ?
+      y : window.screenY + (window.innerHeight - height) / 2;
     const features =
       'menubar=no,location=no,resizable=no,scrollbars=no,status=no,' +
       `width=${width},height=${height},left=${left},top=${top}`;
-    this.handle = window.open(url, name, features);
     this._locationChanging = true;
+    this.handle = window.open(url, name, features);
 
     this._addListeners();
   }

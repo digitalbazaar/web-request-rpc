@@ -39,6 +39,8 @@ export class WebAppContext {
    *          [className] a className to assign to the window for CSS purposes.
    *          [customize(options)] a function to customize the dialog that
    *            loads the window after its construction.
+   *          [bounds] a bounding rectangle (top, left, width, height) to
+   *            use when creating a popup window.
    *
    * @return a Promise that resolves to an RPC injector once the window is
    *           ready.
@@ -52,7 +54,9 @@ export class WebAppContext {
       handle,
       windowControl,
       className,
-      customize
+      customize,
+      // top, left, width, height
+      bounds
     } = {}) {
     // disallow loading the same WebAppContext more than once
     if(this.loaded) {
@@ -69,7 +73,8 @@ export class WebAppContext {
       handle,
       windowControl,
       className,
-      customize
+      customize,
+      bounds
     });
 
     // define control class; this enables the WebApp that is running in the
