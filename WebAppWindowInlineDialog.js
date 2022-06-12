@@ -105,11 +105,13 @@ export class WebAppWindowInlineDialog extends WebAppWindowDialog {
         console.error(e);
       }
     }
+    super.close();
   }
 
   destroy() {
     console.log('destroy iframe window');
     this.dialog.parentNode.removeChild(this.dialog);
+    super.destroy();
   }
 }
 
