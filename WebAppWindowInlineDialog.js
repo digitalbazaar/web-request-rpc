@@ -96,6 +96,7 @@ export class WebAppWindowInlineDialog extends WebAppWindowDialog {
   }
 
   close() {
+    console.log('close iframe window');
     this.dialog.style.display = 'none';
     if(this.dialog.close) {
       try {
@@ -107,6 +108,7 @@ export class WebAppWindowInlineDialog extends WebAppWindowDialog {
   }
 
   destroy() {
+    console.log('destroy iframe window');
     this.dialog.parentNode.removeChild(this.dialog);
   }
 }
