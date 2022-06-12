@@ -20,12 +20,10 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
   show() {}
 
   close() {
-    console.log('close called on popup dialog');
     this.destroy();
   }
 
   destroy() {
-    console.log('destroy called on popup dialog');
     if(this.handle && !this.destroyed) {
       this.handle.close();
       super.close();
@@ -69,7 +67,6 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
 
     // when a new URL loads in the dialog, clear the location changing flag
     const loadDialog = () => {
-      console.log('dialog loaded, clearing location changing flag');
       this._locationChanging = false;
     };
 
@@ -77,12 +74,10 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
     const unloadDialog = () => {
       if(this._locationChanging) {
         // a location change was expected, return
-        console.log('dialog unloaded but expected a location change');
         return;
       }
 
       // a location change was NOT expected, destroy the dialog
-      console.log('dialog unloaded and NOT expected, destroying dialog');
       this.destroy();
     };
 
