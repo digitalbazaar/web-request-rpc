@@ -48,7 +48,7 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
     const top = y !== undefined ?
       y : window.screenY + (window.innerHeight - height) / 2;
     const features =
-      'menubar=no,location=no,resizable=no,scrollbars=no,status=no,' +
+      'popup=yes,menubar=no,location=no,resizable=no,scrollbars=no,status=no,' +
       `width=${width},height=${height},left=${left},top=${top}`;
     this._locationChanging = true;
     this.handle = window.open(url, name, features);
