@@ -1,6 +1,6 @@
 # web-request-rpc ChangeLog
 
-## 2.0.0 - 2022-06-xx
+## 2.0.0 - 2022-06-13
 
 ### Changed
 - **BREAKING**: Enable the use of 1p popup dialogs or iframes when creating
