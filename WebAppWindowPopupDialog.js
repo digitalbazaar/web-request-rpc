@@ -7,7 +7,6 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
   constructor({url, handle, bounds = {width: 500, height: 400}}) {
     super();
     this.url = url;
-    // FIXME: do not reuse handle, reuse entire dialog class instead
     this.handle = handle;
     this._locationChanging = false;
     if(!handle) {

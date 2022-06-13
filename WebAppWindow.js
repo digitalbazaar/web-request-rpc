@@ -17,7 +17,6 @@ export class WebAppWindow {
     url, {
       timeout = LOAD_WINDOW_TIMEOUT,
       dialog = null,
-      // FIXME: Allow this only for popup windows
       handle,
       popup = false,
       className = null,
