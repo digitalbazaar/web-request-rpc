@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 1.1.8 - 2022-06-xx
+
+### Fixed
+- Fix `window.opener` / `window.parent` reversal bug.
+
 ## 1.1.7 - 2021-01-22
 
 ### Fixed
