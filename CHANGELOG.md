@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 2.0.1 - 2022-11-dd
+
+### Fixed
+- Mark inline dialog and iframe as unselectable to avoid chromium focus bug.
+
 ## 2.0.0 - 2022-06-13
 
 ### Changed
