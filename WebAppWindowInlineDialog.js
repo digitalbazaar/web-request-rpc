@@ -26,6 +26,8 @@ export class WebAppWindowInlineDialog extends WebAppWindowDialog {
       color: 'black',
       'box-sizing': 'border-box',
       overflow: 'hidden',
+      // prevent focus bug in chrome
+      'user-select': 'none',
       'z-index': 1000000
     });
     this.dialog.className = 'web-app-window';
@@ -68,7 +70,9 @@ export class WebAppWindowInlineDialog extends WebAppWindowDialog {
       overflow: 'hidden',
       margin: 0,
       padding: 0,
-      'flex-grow': 1
+      'flex-grow': 1,
+      // prevent focus bug in chrome
+      'user-select': 'none'
     });
 
     // assemble dialog
