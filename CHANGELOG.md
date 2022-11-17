@@ -1,6 +1,6 @@
 # web-request-rpc ChangeLog
 
-## 2.0.2 - 2022-11-dd
+## 2.0.2 - 2022-11-17
 
 ### Fixed
 - Apply workaround for chromium bug where mouse events are sent to the
