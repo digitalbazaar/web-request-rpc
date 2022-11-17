@@ -1,5 +1,12 @@
 # web-request-rpc ChangeLog
 
+## 2.0.2 - 2022-11-dd
+
+### Fixed
+- Apply workaround for chromium bug where mouse events are sent to the
+  underlying page instead of an element in an iframe that is over the
+  page.
+
 ## 2.0.1 - 2022-11-09
 
 ### Fixed
