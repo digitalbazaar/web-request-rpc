@@ -97,6 +97,28 @@ export class WebAppWindowInlineDialog extends WebAppWindowDialog {
     if(this.dialog.showModal) {
       this.dialog.showModal();
     }
+    /* Note: Hack to solve chromium bug that sometimes (race condition) causes
+    mouse events to go to the underlying page instead of the iframe. This bug
+    generally manifests by showing a very quick flash of unstyled content /
+    background followed by a "not-allowed" mouse cursor over the page and over
+    the dialog and iframe, preventing interaction with the page until
+    the user right-clicks or causes some other render event in the page (a
+    render event inside the iframe does not seem to help resolve the bug).
+
+    Could be related to bug: tinyurl.com/2p9c66z9
+    Or could be related to the "Paint Holding" chromium feature.
+
+    We have found experimentally, that resetting accepting pointer events on
+    the dialog and allowing enough frames for rendering (16 ms is insufficient
+    but 32 ms seems to work), the bug resolves. */
+    try {
+      this.dialog.style.pointerEvents = 'none';
+    } catch(e) {}
+    setTimeout(() => {
+      try {
+        this.dialog.style.pointerEvents = '';
+      } catch(e) {}
+    }, 32);
   }
 
   close() {
