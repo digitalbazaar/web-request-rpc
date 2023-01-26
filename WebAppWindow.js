@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2017-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2017-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {WebAppWindowInlineDialog} from './WebAppWindowInlineDialog.js';
 import {WebAppWindowPopupDialog} from './WebAppWindowPopupDialog.js';
@@ -85,17 +85,20 @@ export class WebAppWindow {
       } else {
         this.dialog = new WebAppWindowInlineDialog({url, handle, className});
       }
-    } else if(this.popup && bounds) {
+    }
+    if(this.popup && bounds) {
       // resize / re-position popup window as requested
-      if(bounds) {
-        const {top: y, left: x, width, height} = bounds;
-        if(x !== undefined && y !== undefined) {
-          this.dialog.handle.moveTo(x, y);
-        }
-        if(width !== undefined && height !== undefined) {
-          this.dialog.handle.resizeTo(width, height);
-        }
-      }
+      let {x, y, width = 500, height = 400} = bounds;
+      width = Math.min(width, window.innerWidth);
+      // ~30 pixels must be added when resizing for window titlebar
+      height = Math.min(height + 30, window.innerHeight);
+      x = Math.floor(x !== undefined ?
+        x : window.screenX + (window.innerWidth - width) / 2);
+      // ~15 pixels must be added to account for window titlebar
+      y = Math.floor(y !== undefined ?
+        y : window.screenY + (window.innerHeight - height) / 2 + 15);
+      this.dialog.handle.resizeTo(width, height);
+      this.dialog.handle.moveTo(x, y);
     }
 
     this.handle = this.dialog.handle;
