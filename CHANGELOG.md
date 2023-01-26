@@ -1,6 +1,6 @@
 # web-request-rpc ChangeLog
 
-## 2.0.3 - 2023-01-dd
+## 2.0.3 - 2023-01-26
 
 ### Fixed
 - Fix popup window resize bugs. When calling `window.open`, the height
