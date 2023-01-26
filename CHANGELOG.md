@@ -1,5 +1,16 @@
 # web-request-rpc ChangeLog
 
+## 2.0.3 - 2023-01-dd
+
+### Fixed
+- Fix popup window resize bugs. When calling `window.open`, the height
+  and width used are for the total content area not including any
+  title bar, when calling `resizeTo`, the height and width are for the
+  total content area and any title bar, etc. Additionally, the window
+  bounds parameters are ignored in Firefox when opening a new window
+  if the parent window is maximized, so the resizeTo/moveTo APIs must
+  always be called on popups.
+
 ## 2.0.2 - 2022-11-17
 
 ### Fixed

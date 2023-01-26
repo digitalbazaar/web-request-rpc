@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Digital Bazaar, Inc. All rights reserved.
  */
 import {WebAppWindowDialog} from './WebAppWindowDialog.js';
 
@@ -42,10 +42,10 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
     let {width = 500, height = 400} = bounds;
     width = Math.min(width, window.innerWidth);
     height = Math.min(height, window.innerHeight);
-    const left = x !== undefined ?
-      x : window.screenX + (window.innerWidth - width) / 2;
-    const top = y !== undefined ?
-      y : window.screenY + (window.innerHeight - height) / 2;
+    const left = Math.floor(x !== undefined ?
+      x : window.screenX + (window.innerWidth - width) / 2);
+    const top = Math.floor(y !== undefined ?
+      y : window.screenY + (window.innerHeight - height) / 2);
     const features =
       'popup=yes,menubar=no,location=no,resizable=no,scrollbars=no,status=no,' +
       `width=${width},height=${height},left=${left},top=${top}`;
