@@ -1,5 +1,10 @@
 # web-request-rpc ChangeLog
 
+## 3.0.0 - 2024-xx-xx
+
+### Changed
+- **BREAKING**: Change to module.
+
 ## 2.0.3 - 2023-01-26
 
 ### Fixed

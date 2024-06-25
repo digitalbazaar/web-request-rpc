@@ -3,9 +3,6 @@
  *
  * Copyright (c) 2017-2024 Digital Bazaar, Inc. All rights reserved.
  */
-/* global URL */
-'use strict';
-
 export const RPC_ERRORS = {
   ParseError: {
     message: 'Parse error',

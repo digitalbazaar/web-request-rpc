@@ -3,8 +3,6 @@
  *
  * Copyright (c) 2017-2024 Digital Bazaar, Inc. All rights reserved.
  */
-'use strict';
-
 import {Client} from './Client.js';
 import {parseUrl} from './utils.js';
 import {Server} from './Server.js';

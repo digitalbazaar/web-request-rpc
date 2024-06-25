@@ -2,7 +2,9 @@
   "name": "web-request-rpc",
   "version": "2.0.4-0",
   "description": "Web Request RPC",
-  "main": "index.js",
+  "type": "module",
+  "main": "./index.js",
+  "exports": "./index.js",
   "scripts": {
     "lint": "eslint --ext .cjs,.js ."
   },
@@ -23,6 +25,7 @@
   "devDependencies": {
     "eslint": "^8.57.0",
     "eslint-config-digitalbazaar": "^5.2.0",
-    "eslint-plugin-jsdoc": "^48.4.0"
+    "eslint-plugin-jsdoc": "^48.4.0",
+    "eslint-plugin-unicorn": "^54.0.0"
   }
 }
