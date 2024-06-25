@@ -101,6 +101,6 @@ export class WebAppWindowPopupDialog extends WebAppWindowDialog {
       this.handle.removeListener('unload', unloadDialog);
       this.handle.removeListener('load', loadDialog);
       window.removeEventListener('beforeUnload', destroyDialog);
-    }
+    };
   }
 }

@@ -3,6 +3,9 @@
   "version": "2.0.4-0",
   "description": "Web Request RPC",
   "main": "index.js",
+  "scripts": {
+    "lint": "eslint --ext .cjs,.js ."
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/digitalbazaar/web-request-rpc.git"
@@ -16,5 +19,10 @@
   "bugs": {
     "url": "https://github.com/digitalbazaar/web-request-rpc/issues"
   },
-  "homepage": "https://github.com/digitalbazaar/web-request-rpc"
+  "homepage": "https://github.com/digitalbazaar/web-request-rpc",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-digitalbazaar": "^5.2.0",
+    "eslint-plugin-jsdoc": "^48.4.0"
+  }
 }

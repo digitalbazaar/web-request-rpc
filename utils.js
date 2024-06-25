@@ -1,7 +1,7 @@
 /*!
  * Utilities for Web Request RPC.
  *
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2017-2024 Digital Bazaar, Inc. All rights reserved.
  */
 /* global URL */
 'use strict';
@@ -83,9 +83,9 @@ export function parseUrl(url, base) {
     //   support WHATWG URL?
     host: parser.host || window.location.host,
     hostname: parser.hostname,
-    origin: origin,
+    origin,
     protocol: parser.protocol,
-    pathname: pathname
+    pathname
   };
 }
 
@@ -94,7 +94,8 @@ export function originMatches(url, origin) {
 }
 
 // https://gist.github.com/LeverOne/1308368
-export function uuidv4(a,b) {
+export function uuidv4(a, b) {
+  /* eslint-disable-next-line space-infix-ops,semi-spacing,max-len,curly */
   for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b;
 }
 
@@ -155,7 +156,7 @@ export function deserializeError(error) {
   let err;
   // special case known types, otherwise use generic Error
   if(error.constructor === 'DOMException') {
-    err = new DOMException(error.message, error.name)
+    err = new DOMException(error.message, error.name);
     // ignore code, name will set it
   } else {
     err = new Error(error.message);
@@ -194,6 +195,7 @@ export function destructureMethodName(fqMethodName) {
   // fully-qualified method name is: `<api-name>.<method-name>`
   // where `<api-name>` is all but the last dot-delimited segment and
   // `<method-name>` is the last dot-delimited segment
+  /* eslint-disable-next-line prefer-const */
   let [name, ...rest] = fqMethodName.split('.');
   const method = rest.pop();
   name = [name, ...rest].join('.');

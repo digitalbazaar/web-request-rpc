@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2017-2024 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
@@ -16,8 +16,8 @@ export class Server {
    * Provides an implementation for a named API. All functions in the given
    * API will be made callable via RPC clients connected to this server.
    *
-   * @param name the name of the API.
-   * @param api the API to add.
+   * @param {string} name - The name of the API.
+   * @param {object} api - The API to add.
    */
   define(name, api) {
     if(!(name && typeof name === 'string')) {
@@ -46,12 +46,13 @@ export class Server {
    * If a message refers to an unknown method on a known named API, then an
    * error message is sent in response.
    *
-   * @param origin the origin to listen for.
-   * @param options the options to use:
-   *          [handle] a handle to the window (or a Promise that resolves to
-   *            a handle) to listen for messages from
-   *            (defaults to `window.opener || window.parent`).
-   *          [ignoreUnknownApi] `true` to ignore unknown API messages.
+   * @param {string} origin - The origin to listen for.
+   * @param {object} options - The options to use.
+   * @param {object|Promise} [options.handle] - A handle to the window (or a
+   *   Promise that resolves to a handle) to listen for messages from
+   *   (defaults to `window.opener || window.parent`).
+   * @param {boolean} [options.ignoreUnknownApi] - `true` to ignore unknown API
+   *   messages.
    */
   async listen(origin, options) {
     if(this._listener) {

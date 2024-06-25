@@ -1,10 +1,10 @@
 /*!
- * Copyright (c) 2017-2022 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2017-2024 Digital Bazaar, Inc. All rights reserved.
  */
 import {Client} from './Client.js';
+import {parseUrl} from './utils.js';
 import {Server} from './Server.js';
 import {WebAppWindow} from './WebAppWindow.js';
-import {parseUrl} from './utils.js';
 
 // 10 seconds
 const WEB_APP_CONTEXT_LOAD_TIMEOUT = 10000;
@@ -29,21 +29,25 @@ export class WebAppContext {
    * define APIs to enable communication with the WebApp running in the
    * WebAppContext.
    *
-   * @param url the URL to the page to connect to.
-   * @param options the options to use:
-   *          [timeout] the timeout for waiting for the client to be ready.
-   *          [handle] a window handle to connect to; may be a Promise that
-   *            that resolves to a handle.
-   *          [iframe] an iframe element to connect to.
-   *          [windowControl] a window control interface to connect to.
-   *          [className] a className to assign to the window for CSS purposes.
-   *          [customize(options)] a function to customize the dialog that
-   *            loads the window after its construction.
-   *          [bounds] a bounding rectangle (top, left, width, height) to
-   *            use when creating a popup window.
+   * @param {string} url - The URL to the page to connect to.
+   * @param {object} options - The options to use.
+   * @param {number} [options.timeout] - The timeout for waiting for the client
+   *   to be ready.
+   * @param {object|Promise} [options.handle] - A window handle to connect to;
+   *   may be a Promise that that resolves to a handle.
+   * @param {object} [options.iframe] - An iframe element to connect to.
+   * @param {object} [options.dialog] - An dialog to use.
+   * @param {boolean} [options.popup] - `true` to popup.
+   * @param {object} [options.windowControl] - A window control interface to
+   *   connect to.
+   * @param {string} [options.className] - A className to assign to the window
+   *   for CSS purposes.
+   * @param {Function} [options.customize] - A function to customize the dialog
+   *   that loads the window after its construction: customize(options).
+   * @param {object} [options.bounds] - A bounding rectangle
+   *   (top, left, width, height) to use when creating a popup window.
    *
-   * @return a Promise that resolves to an RPC injector once the window is
-   *           ready.
+   * @returns {Promise} Resolves to an RPC injector once the window is ready.
    */
   async createWindow(
     url, {
