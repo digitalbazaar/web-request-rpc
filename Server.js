@@ -1,8 +1,6 @@
 /*!
  * Copyright (c) 2017-2024 Digital Bazaar, Inc. All rights reserved.
  */
-'use strict';
-
 import * as utils from './utils.js';
 
 export class Server {

@@ -1,8 +1,6 @@
 /*!
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2017-2024 Digital Bazaar, Inc. All rights reserved.
  */
-'use strict';
-
 export class EventEmitter {
   constructor({deserialize = e => e, waitUntil = async () => {}} = {}) {
     this._listeners = [];
