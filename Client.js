@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2017-2024 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
@@ -7,6 +7,82 @@ import * as utils from './utils.js';
 
 // 30 second default timeout
 const RPC_CLIENT_CALL_TIMEOUT = 30000;
+
+class Injector {
+  constructor(client) {
+    this.client = client;
+    this._apis = new Map();
+  }
+
+  /**
+   * Defines a named API that will use an RPC client to implement its
+   * functions. Each of these functions will be asynchronous and return a
+   * Promise with the result from the RPC server.
+   *
+   * This function will return an interface with functions defined according
+   * to those provided in the given `definition`. The `name` parameter can be
+   * used to obtain this cached interface via `.get(name)`.
+   *
+   * @param {string} name - The name of the API.
+   * @param {object} definition - The definition for the API.
+   * @param {Array} definition.functions - An array of function names (as
+   *   strings) or objects.
+   * @param {object} definition.containing - Object of the form:
+   *   {name: <functionName>, options: <rpcClientOptions>}.
+   *
+   * @returns {object} An interface with the functions provided via
+   *   `definition` that will make RPC calls to an RPC server to provide their
+   *   implementation.
+   */
+  define(name, definition) {
+    if(!(name && typeof name === 'string')) {
+      throw new TypeError('`name` must be a non-empty string.');
+    }
+    // TODO: support Web IDL as a definition format?
+    if(!(definition && typeof definition === 'object' &&
+      Array.isArray(definition.functions))) {
+      throw new TypeError(
+        '`definition.function` must be an array of function names or ' +
+        'function definition objects to be defined.');
+    }
+
+    const self = this;
+    const api = {};
+
+    definition.functions.forEach(fn => {
+      if(typeof fn === 'string') {
+        fn = {name: fn, options: {}};
+      }
+      api[fn.name] = async function() {
+        return self.client.send(
+          name + '.' + fn.name, [...arguments], fn.options);
+      };
+    });
+
+    self._apis[name] = api;
+    return api;
+  }
+
+  /**
+   * Get a named API, defining it if necessary when a definition is provided.
+   *
+   * @param {string} name - The name of the API.
+   * @param {object} [definition] - The definition for the API; if the API is
+   *   already defined, this definition is ignored.
+   *
+   * @returns {object} The interface.
+   */
+  get(name, definition) {
+    const api = this._apis[name];
+    if(!api) {
+      if(definition) {
+        return this.define(name, definition);
+      }
+      throw new Error(`API "${name}" has not been defined.`);
+    }
+    return this._apis[name];
+  }
+}
 
 export class Client {
   constructor() {
@@ -23,13 +99,13 @@ export class Client {
    * The Promise will resolve to an RPC injector that can be used to get or
    * define APIs to enable communication with the server.
    *
-   * @param origin the origin to send messages to.
-   * @param options the options to use:
-   *          [handle] a handle to the window (or a Promise that resolves to
-   *            a handle) to send messages to
-   *            (defaults to `window.opener || window.parent`).
+   * @param {string} origin - The origin to send messages to.
+   * @param {object} options - The options to use.
+   * @param {object|Promise} [options.handle] - A handle to the window (or a
+   *   Promise that resolves to a handle) to send messages to
+   *   (defaults to `window.opener || window.parent`).
    *
-   * @return a Promise that resolves to an RPC injector once connected.
+   * @returns {Promise} Resolves to an RPC injector once connected.
    */
   async connect(origin, options) {
     if(this._listener) {
@@ -72,13 +148,15 @@ export class Client {
    * Performs a RPC by sending a message to the Web Request RPC server and
    * awaiting a response.
    *
-   * @param qualifiedMethodName the fully-qualified name of the method to call.
-   * @param parameters the parameters for the method.
-   * @param options the options to use:
-   *          [timeout] a timeout, in milliseconds, for awaiting a response;
-   *            a non-positive timeout (<= 0) will cause an indefinite wait.
+   * @param {string} qualifiedMethodName - The fully-qualified name of the
+   *   method to call.
+   * @param {object} parameters - The parameters for the method.
+   * @param {object} options - The options to use.
+   * @param {number} [options.timeout] - A timeout, in milliseconds, for
+   *   awaiting a response; a non-positive timeout (<= 0) will cause an
+   *   indefinite wait.
    *
-   * @return a Promise that resolves to the result (or error) of the call.
+   * @returns {Promise} Resolves to the result (or error) of the call.
    */
   async send(qualifiedMethodName, parameters, {
     timeout = RPC_CLIENT_CALL_TIMEOUT
@@ -142,79 +220,5 @@ export class Client {
       }
       this._pending = new Map();
     }
-  }
-}
-
-class Injector {
-  constructor(client) {
-    this.client = client;
-    this._apis = new Map();
-  }
-
-  /**
-   * Defines a named API that will use an RPC client to implement its
-   * functions. Each of these functions will be asynchronous and return a
-   * Promise with the result from the RPC server.
-   *
-   * This function will return an interface with functions defined according
-   * to those provided in the given `definition`. The `name` parameter can be
-   * used to obtain this cached interface via `.get(name)`.
-   *
-   * @param name the name of the API.
-   * @param definition the definition for the API, including:
-   *          functions: an array of function names (as strings) or objects
-   *            containing: {name: <functionName>, options: <rpcClientOptions>}.
-   *
-   * @return an interface with the functions provided via `definition` that
-   *           will make RPC calls to an RPC server to provide their
-   *           implementation.
-   */
-  define(name, definition) {
-    if(!(name && typeof name === 'string')) {
-      throw new TypeError('`name` must be a non-empty string.');
-    }
-    // TODO: support Web IDL as a definition format?
-    if(!(definition && typeof definition === 'object' &&
-      Array.isArray(definition.functions))) {
-      throw new TypeError(
-        '`definition.function` must be an array of function names or ' +
-        'function definition objects to be defined.');
-    }
-
-    const self = this;
-    const api = {};
-
-    definition.functions.forEach(fn => {
-      if(typeof fn === 'string') {
-        fn = {name: fn, options: {}};
-      }
-      api[fn.name] = async function() {
-        return self.client.send(
-          name + '.' + fn.name, [...arguments], fn.options);
-      };
-    });
-
-    self._apis[name] = api;
-    return api;
-  }
-
-  /**
-   * Get a named API, defining it if necessary when a definition is provided.
-   *
-   * @param name the name of the API.
-   * @param [definition] the definition for the API; if the API is already
-   *          defined, this definition is ignored.
-   *
-   * @return the interface.
-   */
-  get(name, definition) {
-    const api = this._apis[name];
-    if(!api) {
-      if(definition) {
-        return this.define(name, definition);
-      }
-      throw new Error(`API "${name}" has not been defined.`);
-    }
-    return this._apis[name];
   }
 }

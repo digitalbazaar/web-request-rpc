@@ -1,13 +1,13 @@
 /*!
  * A WebApp is a remote application that runs in a WebAppContext.
  *
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2017-2024 Digital Bazaar, Inc. All rights reserved.
  */
 'use strict';
 
 import {Client} from './Client.js';
-import {Server} from './Server.js';
 import {parseUrl} from './utils.js';
+import {Server} from './Server.js';
 
 export class WebApp {
   constructor(relyingOrigin) {
@@ -27,8 +27,8 @@ export class WebApp {
    * Connects this WebApp to the relying origin that instantiated it. Once
    * connected, the WebApp can start servicing calls from that origin.
    *
-   * @return a Promise that resolves to an injector for creating custom client
-   *           APIs once the connection is ready.
+   * @returns {Promise} Resolves to an injector for creating custom client APIs
+   *   once the connection is ready.
    */
   async connect() {
     this.injector = await this.client.connect(this.relyingOrigin);
@@ -43,6 +43,8 @@ export class WebApp {
   /**
    * Must be called after `connect` when this WebApp is ready to start
    * receiving calls from the remote end.
+   *
+   * @returns {object} The WebApp.
    */
   async ready() {
     if(!this._connected) {
@@ -65,6 +67,8 @@ export class WebApp {
 
   /**
    * Shows the UI for this WebApp on the relying origin.
+   *
+   * @returns {*} The control show result.
    */
   async show() {
     if(!this._connected) {
@@ -76,6 +80,8 @@ export class WebApp {
 
   /**
    * Hides the UI for this WebApp on the relying origin.
+   *
+   * @returns {*} The control hide result.
    */
   async hide() {
     if(!this._connected) {
