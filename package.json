@@ -1,6 +1,6 @@
 {
   "name": "web-request-rpc",
-  "version": "2.0.4-0",
+  "version": "3.0.0",
   "description": "Web Request RPC",
   "type": "module",
   "main": "./lib/index.js",
