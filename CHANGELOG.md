@@ -1,6 +1,6 @@
 # web-request-rpc ChangeLog
 
-## 3.0.1 - 2025-12-dd
+## 3.0.1 - 2025-12-16
 
 ### Fixed
 - Ensure localhost permission can be requested for localhost web apps.
